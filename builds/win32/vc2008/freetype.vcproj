@@ -146,7 +146,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\win32\vc9\x86\libfreetype_a.lib"
+				OutputFile="..\..\..\objs\win32\vc9\x86\freetype_a.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
