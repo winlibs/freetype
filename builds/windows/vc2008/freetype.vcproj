@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="9.00"
+	Version="9,00"
 	Name="freetype"
 	ProjectGUID="{78B079BD-9FC7-4B9E-B4A6-96DA0F00248B}"
 	TargetFrameworkVersion="131072"
@@ -70,7 +70,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\win32\vc2008\freetype255.lib"
+				OutputFile="..\..\..\objs\win32\vc2008\freetype26.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -145,7 +145,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\win32\vc2008\freetype_a.lib"
+				OutputFile="..\..\..\objs\win32\vc2008\freetype26MT.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -220,7 +220,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\win32\vc2008\freetype255ST.lib"
+				OutputFile="..\..\..\objs\win32\vc2008\freetype26ST.lib"
 			/>
 			<Tool
 				Name="VCALinkTool"
@@ -292,7 +292,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\win32\vc2008\freetype255_D.lib"
+				OutputFile="..\..\..\objs\win32\vc2008\freetype26_D.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -365,7 +365,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\win32\vc2008\freetype255ST_D.lib"
+				OutputFile="..\..\..\objs\win32\vc2008\freetype26ST_D.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -439,7 +439,7 @@
 			/>
 			<Tool
 				Name="VCLibrarianTool"
-				OutputFile="..\..\..\objs\win32\vc2008\freetype_a_debug.lib"
+				OutputFile="..\..\..\objs\win32\vc2008\freetype26MT_D.lib"
 				SuppressStartupBanner="true"
 			/>
 			<Tool
@@ -1237,11 +1237,7 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\src\base\ftgxval.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\base\ftlcdfil.c"
+					RelativePath="..\..\..\src\base\ftfntfmt.c"
 					>
 				</File>
 				<File
@@ -1312,14 +1308,6 @@
 					</FileConfiguration>
 				</File>
 				<File
-					RelativePath="..\..\..\src\base\ftotval.c"
-					>
-				</File>
-				<File
-					RelativePath="..\..\..\src\base\ftpatent.c"
-					>
-				</File>
-				<File
 					RelativePath="..\..\..\src\base\ftpfr.c"
 					>
 				</File>
@@ -1336,7 +1324,19 @@
 					>
 				</File>
 				<File
-					RelativePath="..\..\..\src\base\ftxf86.c"
+					RelativePath="..\..\..\src\base\ftlcdfil.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\src\base\ftgxval.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\src\base\ftotval.c"
+					>
+				</File>
+				<File
+					RelativePath="..\..\..\src\base\ftpatent.c"
 					>
 				</File>
 				<File
