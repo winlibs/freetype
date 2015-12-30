@@ -201,6 +201,7 @@
 #define ACMSG14  "Glyph %ld extra columns removed.\n"
 #define ACMSG15  "Incorrect glyph count: %ld indicated but %ld found.\n"
 #define ACMSG16  "Glyph %ld missing columns padded with zero bits.\n"
+#define ACMSG17  "Adjusting number of glyphs to %ld.\n"
 
   /* Error messages. */
 #define ERRMSG1  "[line %ld] Missing `%s' line.\n"
@@ -432,6 +433,7 @@
     _bdf_list_t     list;
 
     FT_Memory       memory;
+    unsigned long   size;        /* the stream size */
 
   } _bdf_parse_t;
 
@@ -1579,6 +1581,13 @@
         goto Exit;
       p->cnt = font->glyphs_size = _bdf_atoul( p->list.field[1], 0, 10 );
 
+      /* We need at least 20 bytes per glyph. */
+      if ( p->cnt > p->size / 20 )
+      {
+        p->cnt = font->glyphs_size = p->size / 20;
+        FT_TRACE2(( "_bdf_parse_glyphs: " ACMSG17, p->cnt ));
+      }
+
       /* Make sure the number of glyphs is non-zero. */
       if ( p->cnt == 0 )
         font->glyphs_size = 64;
@@ -1641,6 +1650,14 @@
     /* Check for the STARTCHAR field. */
     if ( _bdf_strncmp( line, "STARTCHAR", 9 ) == 0 )
     {
+      if ( p->flags & _BDF_GLYPH_BITS )
+      {
+        /* Missing ENDCHAR field. */
+        FT_ERROR(( "_bdf_parse_glyphs: " ERRMSG1, lineno, "ENDCHAR" ));
+        error = FT_THROW( Missing_Startchar_Field );
+        goto Exit;
+      }
+
       /* Set the character name in the parse info first until the */
       /* encoding can be checked for an unencoded character.      */
       FT_FREE( p->glyph_name );
@@ -1773,11 +1790,16 @@
           glyph           = font->unencoded + font->unencoded_used;
           glyph->name     = p->glyph_name;
           glyph->encoding = (long)font->unencoded_used++;
+
+          /* Reset the initial glyph info. */
+          p->glyph_name = NULL;
         }
         else
+        {
           /* Free up the glyph name if the unencoded shouldn't be */
           /* kept.                                                */
           FT_FREE( p->glyph_name );
+        }
 
         p->glyph_name = NULL;
       }
@@ -2346,30 +2368,23 @@
       /* Check for the bits per pixel field. */
       if ( p->list.used == 5 )
       {
-        unsigned short bitcount, i, shift;
+        unsigned short bpp;
 
 
-        p->font->bpp = (unsigned short)_bdf_atos( p->list.field[4], 0, 10 );
+        bpp = (unsigned short)_bdf_atos( p->list.field[4], 0, 10 );
 
-        /* Only values 1, 2, 4, 8 are allowed. */
-        shift = p->font->bpp;
-        bitcount = 0;
-        for ( i = 0; shift > 0; i++ )
-        {
-          if ( shift & 1 )
-            bitcount = i;
-          shift >>= 1;
-        }
+        /* Only values 1, 2, 4, 8 are allowed for greymap fonts. */
+        if ( bpp > 4 )
+          p->font->bpp = 8;
+        else if ( bpp > 2 )
+          p->font->bpp = 4;
+        else if ( bpp > 1 )
+          p->font->bpp = 2;
+        else
+          p->font->bpp = 1;
 
-        shift = (unsigned short)( ( bitcount > 3 ) ? 8
-                                                   : ( 1U << bitcount ) );
-
-        if ( p->font->bpp > shift || p->font->bpp != shift )
-        {
-          /* select next higher value */
-          p->font->bpp = (unsigned short)( shift << 1 );
+        if ( p->font->bpp != bpp )
           FT_TRACE2(( "_bdf_parse_start: " ACMSG11, p->font->bpp ));
-        }
       }
       else
         p->font->bpp = 1;
@@ -2454,6 +2469,7 @@
     memory    = NULL;
     p->opts   = (bdf_options_t*)( ( opts != 0 ) ? opts : &_bdf_opts );
     p->minlb  = 32767;
+    p->size   = stream->size;
     p->memory = extmemory;  /* only during font creation */
 
     _bdf_list_init( &p->list, extmemory );
@@ -2538,14 +2554,14 @@
         /* Error happened while parsing header. */
         FT_ERROR(( "bdf_load_font: " ERRMSG2, lineno ));
         error = FT_THROW( Corrupted_Font_Header );
-        goto Exit;
+        goto Fail;
       }
       else
       {
         /* Error happened when parsing glyphs. */
         FT_ERROR(( "bdf_load_font: " ERRMSG3, lineno ));
         error = FT_THROW( Corrupted_Font_Glyphs );
-        goto Exit;
+        goto Fail;
       }
     }
 
@@ -2576,6 +2592,7 @@
 
       memory = extmemory;
 
+      FT_FREE( p->glyph_name );
       FT_FREE( p );
     }
 

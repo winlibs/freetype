@@ -336,6 +336,9 @@
       mmvar->axis[i].strid   = ~0U;                      /* Does not apply */
       mmvar->axis[i].tag     = ~0U;                      /* Does not apply */
 
+      if ( !mmvar->axis[i].name )
+        continue;
+
       if ( ft_strcmp( mmvar->axis[i].name, "Weight" ) == 0 )
         mmvar->axis[i].tag = FT_MAKE_TAG( 'w', 'g', 'h', 't' );
       else if ( ft_strcmp( mmvar->axis[i].name, "Width" ) == 0 )
@@ -615,6 +618,15 @@
         goto Exit;
       }
 
+      name = (FT_Byte*)blend->axis_names[n];
+      if ( name )
+      {
+        FT_TRACE0(( "parse_blend_axis_types:"
+                    " overwriting axis name `%s' with `%*.s'\n",
+                    name, len, token->start ));
+        FT_FREE( name );
+      }
+
       if ( FT_ALLOC( blend->axis_names[n], len + 1 ) )
         goto Exit;
 
@@ -783,6 +795,13 @@
       if ( num_points <= 0 || num_points > T1_MAX_MM_MAP_POINTS )
       {
         FT_ERROR(( "parse_blend_design_map: incorrect table\n" ));
+        error = FT_THROW( Invalid_File_Format );
+        goto Exit;
+      }
+
+      if ( map->design_points )
+      {
+        FT_ERROR(( "parse_blend_design_map: duplicate table\n" ));
         error = FT_THROW( Invalid_File_Format );
         goto Exit;
       }
@@ -1107,6 +1126,7 @@
     FT_Int      result;
 
 
+    /* input is scaled by 1000 to accommodate default FontMatrix */
     result = T1_ToFixedArray( parser, 6, temp, 3 );
 
     if ( result < 6 )
@@ -1124,15 +1144,12 @@
       return;
     }
 
-    /* Set Units per EM based on FontMatrix values.  We set the value to */
-    /* 1000 / temp_scale, because temp_scale was already multiplied by   */
-    /* 1000 (in t1_tofixed, from psobjs.c).                              */
-
-    root->units_per_EM = (FT_UShort)FT_DivFix( 1000, temp_scale );
-
-    /* we need to scale the values by 1.0/temp_scale */
+    /* atypical case */
     if ( temp_scale != 0x10000L )
     {
+      /* set units per EM based on FontMatrix values */
+      root->units_per_EM = (FT_UShort)FT_DivFix( 1000, temp_scale );
+
       temp[0] = FT_DivFix( temp[0], temp_scale );
       temp[1] = FT_DivFix( temp[1], temp_scale );
       temp[2] = FT_DivFix( temp[2], temp_scale );
@@ -1194,9 +1211,26 @@
       else
         count = (FT_Int)T1_ToInt( parser );
 
+      /* only composite fonts (which we don't support) */
+      /* can have larger values                        */
+      if ( count > 256 )
+      {
+        FT_ERROR(( "parse_encoding: invalid encoding array size\n" ));
+        parser->root.error = FT_THROW( Invalid_File_Format );
+        return;
+      }
+
       T1_Skip_Spaces( parser );
       if ( parser->root.cursor >= limit )
         return;
+
+      /* PostScript happily allows overwriting of encoding arrays */
+      if ( encode->char_index )
+      {
+        FT_FREE( encode->char_index );
+        FT_FREE( encode->char_name );
+        T1_Release_Table( char_table );
+      }
 
       /* we use a T1_Table to store our charnames */
       loader->num_chars = encode->num_chars = count;
@@ -1389,6 +1423,21 @@
     }
 
     num_subrs = (FT_Int)T1_ToInt( parser );
+    if ( num_subrs < 0 )
+    {
+      parser->root.error = FT_THROW( Invalid_File_Format );
+      return;
+    }
+
+    /* we certainly need more than 8 bytes per subroutine */
+    if ( num_subrs > ( parser->root.limit - parser->root.cursor ) >> 3 )
+    {
+      FT_TRACE0(( "parse_subrs: adjusting number of subroutines"
+                  " (from %d to %d)\n",
+                  num_subrs,
+                  ( parser->root.limit - parser->root.cursor ) >> 3 ));
+      num_subrs = ( parser->root.limit - parser->root.cursor ) >> 3;
+    }
 
     /* position the parser right before the `dup' of the first subr */
     T1_Skip_PS_Token( parser );         /* `array' */
@@ -1510,7 +1559,7 @@
 
     PSAux_Service  psaux        = (PSAux_Service)face->psaux;
 
-    FT_Byte*       cur;
+    FT_Byte*       cur          = parser->root.cursor;
     FT_Byte*       limit        = parser->root.limit;
     FT_Int         n, num_glyphs;
     FT_Int         notdef_index = 0;
@@ -1522,6 +1571,15 @@
     {
       error = FT_THROW( Invalid_File_Format );
       goto Fail;
+    }
+
+    /* we certainly need more than 8 bytes per glyph */
+    if ( num_glyphs > ( limit - cur ) >> 3 )
+    {
+      FT_TRACE0(( "parse_charstrings: adjusting number of glyphs"
+                  " (from %d to %d)\n",
+                  num_glyphs, ( limit - cur ) >> 3 ));
+      num_glyphs = ( limit - cur ) >> 3;
     }
 
     /* some fonts like Optima-Oblique not only define the /CharStrings */
