@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    AFM support for Type 1 fonts (body).                                 */
 /*                                                                         */
-/*  Copyright 1996-2015 by                                                 */
+/*  Copyright 1996-2016 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -197,7 +197,7 @@
     /*   encoding of first glyph (1 byte)     */
     /*   encoding of second glyph (1 byte)    */
     /*   offset (little-endian short)         */
-    for ( ; p < limit ; p += 4 )
+    for ( ; p < limit; p += 4 )
     {
       kp->index1 = FT_Get_Char_Index( t1_face, p[0] );
       kp->index2 = FT_Get_Char_Index( t1_face, p[1] );
@@ -248,6 +248,8 @@
       FT_TRACE1(( "T1_Read_Metrics:"
                   " Freeing previously attached metrics data.\n" ));
       T1_Done_Metrics( memory, (AFM_FontInfo)face->afm_data );
+
+      face->afm_data = NULL;
     }
 
     if ( FT_NEW( fi )                   ||

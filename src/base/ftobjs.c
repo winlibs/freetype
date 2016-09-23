@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    The FreeType private base classes (body).                            */
 /*                                                                         */
-/*  Copyright 1996-2015 by                                                 */
+/*  Copyright 1996-2016 by                                                 */
 /*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -688,7 +688,6 @@
         /* both `fpgm' and `prep' tables are missing                 */
         if ( ( mode == FT_RENDER_MODE_LIGHT                   &&
                !FT_DRIVER_HINTS_LIGHTLY( driver ) )             ||
-             face->internal->ignore_unpatented_hinter           ||
              ( FT_IS_SFNT( face )                             &&
                ttface->num_locations                          &&
                ttface->max_profile.maxSizeOfInstructions == 0 &&
@@ -1419,7 +1418,7 @@
 
   /* Type 1 and CID-keyed font drivers should recognize sfnt-wrapped */
   /* format too.  Here, since we can't expect that the TrueType font */
-  /* driver is loaded unconditially, we must parse the font by       */
+  /* driver is loaded unconditionally, we must parse the font by     */
   /* ourselves.  We are only interested in the name of the table and */
   /* the offset.                                                     */
 
@@ -1484,6 +1483,7 @@
       if ( face_index >= 0 && pstable_index == face_index )
         return FT_Err_Ok;
     }
+
     return FT_THROW( Table_Missing );
   }
 
@@ -1521,14 +1521,29 @@
     if ( error )
       goto Exit;
 
-    if ( FT_Stream_Seek( stream, pos + offset ) )
+    if ( offset > stream->size )
+    {
+      FT_TRACE2(( "open_face_PS_from_sfnt_stream: invalid table offset\n" ));
+      error = FT_THROW( Invalid_Table );
+      goto Exit;
+    }
+    else if ( length > stream->size - offset )
+    {
+      FT_TRACE2(( "open_face_PS_from_sfnt_stream: invalid table length\n" ));
+      error = FT_THROW( Invalid_Table );
+      goto Exit;
+    }
+
+    error = FT_Stream_Seek( stream, pos + offset );
+    if ( error )
       goto Exit;
 
     if ( FT_ALLOC( sfnt_ps, (FT_Long)length ) )
       goto Exit;
 
     error = FT_Stream_Read( stream, (FT_Byte *)sfnt_ps, length );
-    if ( error ) {
+    if ( error )
+    {
       FT_FREE( sfnt_ps );
       goto Exit;
     }
@@ -1776,8 +1791,8 @@
     FT_Long    face_index_in_resource = 0;
 
 
-    if ( face_index == -1 )
-      face_index = 0;
+    if ( face_index < 0 )
+      face_index = -face_index - 1;
     if ( face_index >= resource_cnt )
       return FT_THROW( Cannot_Open_Resource );
 
@@ -1802,7 +1817,8 @@
       goto Exit;
 
     /* rewind sfnt stream before open_face_PS_from_sfnt_stream() */
-    if ( FT_Stream_Seek( stream, flag_offset + 4 ) )
+    error = FT_Stream_Seek( stream, flag_offset + 4 );
+    if ( error )
       goto Exit;
 
     if ( FT_ALLOC( sfnt_data, rlen ) )
@@ -2183,7 +2199,8 @@
                FT_ERR_EQ( error, Table_Missing )                        )
           {
             /* TrueType but essential tables are missing */
-            if ( FT_Stream_Seek( stream, 0 ) )
+            error = FT_Stream_Seek( stream, 0 );
+            if ( error )
               break;
 
             error = open_face_PS_from_sfnt_stream( library,
@@ -2297,11 +2314,24 @@
 
 
         if ( bsize->height < 0 )
-          bsize->height = (FT_Short)-bsize->height;
+          bsize->height = -bsize->height;
         if ( bsize->x_ppem < 0 )
-          bsize->x_ppem = (FT_Short)-bsize->x_ppem;
+          bsize->x_ppem = -bsize->x_ppem;
         if ( bsize->y_ppem < 0 )
           bsize->y_ppem = -bsize->y_ppem;
+
+        /* check whether negation actually has worked */
+        if ( bsize->height < 0 || bsize->x_ppem < 0 || bsize->y_ppem < 0 )
+        {
+          FT_TRACE0(( "FT_Open_Face:"
+                      " Invalid bitmap dimensions for stroke %d,"
+                      " now disabled\n", i ));
+          bsize->width  = 0;
+          bsize->height = 0;
+          bsize->size   = 0;
+          bsize->x_ppem = 0;
+          bsize->y_ppem = 0;
+        }
       }
     }
 
@@ -4199,7 +4229,8 @@
 
 
           MD5_Init( &ctx );
-          MD5_Update( &ctx, bitmap.buffer, rows * pitch );
+          if ( bitmap.buffer )
+            MD5_Update( &ctx, bitmap.buffer, rows * pitch );
           MD5_Final( md5, &ctx );
 
           FT_TRACE3(( "MD5 checksum for %dx%d bitmap:\n"
@@ -4305,7 +4336,7 @@
   {
     FT_Error   error;
     FT_Memory  memory;
-    FT_Module  module;
+    FT_Module  module = NULL;
     FT_UInt    nn;
 
 
@@ -4546,7 +4577,8 @@
                   const FT_String*  module_name,
                   const FT_String*  property_name,
                   void*             value,
-                  FT_Bool           set )
+                  FT_Bool           set,
+                  FT_Bool           value_is_string )
   {
     FT_Module*           cur;
     FT_Module*           limit;
@@ -4616,8 +4648,13 @@
       return FT_THROW( Unimplemented_Feature );
     }
 
-    return set ? service->set_property( cur[0], property_name, value )
-               : service->get_property( cur[0], property_name, value );
+    return set ? service->set_property( cur[0],
+                                        property_name,
+                                        value,
+                                        value_is_string )
+               : service->get_property( cur[0],
+                                        property_name,
+                                        value );
   }
 
 
@@ -4633,7 +4670,8 @@
                            module_name,
                            property_name,
                            (void*)value,
-                           TRUE );
+                           TRUE,
+                           FALSE );
   }
 
 
@@ -4649,8 +4687,31 @@
                            module_name,
                            property_name,
                            value,
+                           FALSE,
                            FALSE );
   }
+
+
+#ifdef FT_CONFIG_OPTION_ENVIRONMENT_PROPERTIES
+
+  /* this variant is used for handling the FREETYPE_PROPERTIES */
+  /* environment variable                                      */
+
+  FT_BASE_DEF( FT_Error )
+  ft_property_string_set( FT_Library        library,
+                          const FT_String*  module_name,
+                          const FT_String*  property_name,
+                          FT_String*        value )
+  {
+    return ft_property_do( library,
+                           module_name,
+                           property_name,
+                           (void*)value,
+                           TRUE,
+                           TRUE );
+  }
+
+#endif
 
 
   /*************************************************************************/

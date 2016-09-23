@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Embedded resource forks accessor (body).                             */
 /*                                                                         */
-/*  Copyright 2004-2015 by                                                 */
+/*  Copyright 2004-2016 by                                                 */
 /*  Masatake YAMATO and Redhat K.K.                                        */
 /*                                                                         */
 /*  FT_Raccess_Get_HeaderInfo() and raccess_guess_darwin_hfsplus() are     */
@@ -403,7 +403,7 @@
         errors[i] = FT_Err_Ok;
 
       if ( errors[i] )
-        continue ;
+        continue;
 
       errors[i] = (FT_RACCESS_GUESS_TABLE_GET[i].func)( library,
                                                  stream, base_name,
