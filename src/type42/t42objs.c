@@ -4,7 +4,7 @@
 /*                                                                         */
 /*    Type 42 objects manager (body).                                      */
 /*                                                                         */
-/*  Copyright 2002-2016 by                                                 */
+/*  Copyright 2002-2017 by                                                 */
 /*  Roberto Alameda.                                                       */
 /*                                                                         */
 /*  This file is part of the FreeType project, and may only be used,       */
@@ -590,7 +590,7 @@
     FT_Error       error   = FT_Err_Ok;
 
 
-    if ( face->glyph == NULL )
+    if ( !face->glyph )
     {
       /* First glyph slot for this face */
       slot->ttslot = t42face->ttf_face->glyph;
