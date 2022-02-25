@@ -445,6 +445,10 @@ set_target_properties(
   freetype PROPERTIES
     C_VISIBILITY_PRESET hidden)
 
+set_target_properties(
+  freetype PROPERTIES
+    RELWITHDEBINFO_POSTFIX _a)
+
 target_compile_definitions(
   freetype PRIVATE FT2_BUILD_LIBRARY)
 

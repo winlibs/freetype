@@ -1,0 +1,18 @@
+ CMakeLists.txt | 4 ++++
+ 1 file changed, 4 insertions(+)
+
+diff --git a/CMakeLists.txt b/CMakeLists.txt
+index 4335d66..093aa04 100644
+--- a/CMakeLists.txt
++++ b/CMakeLists.txt
+@@ -445,6 +445,10 @@ set_target_properties(
+   freetype PROPERTIES
+     C_VISIBILITY_PRESET hidden)
+ 
++set_target_properties(
++  freetype PROPERTIES
++    RELWITHDEBINFO_POSTFIX _a)
++
+ target_compile_definitions(
+   freetype PRIVATE FT2_BUILD_LIBRARY)
+ 
