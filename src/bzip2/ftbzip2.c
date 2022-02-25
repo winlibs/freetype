@@ -1,36 +1,35 @@
-/***************************************************************************/
-/*                                                                         */
-/*  ftbzip2.c                                                              */
-/*                                                                         */
-/*    FreeType support for .bz2 compressed files.                          */
-/*                                                                         */
-/*  This optional component relies on libbz2.  It should mainly be used to */
-/*  parse compressed PCF fonts, as found with many X11 server              */
-/*  distributions.                                                         */
-/*                                                                         */
-/*  Copyright 2010-2018 by                                                 */
-/*  Joel Klinghed.                                                         */
-/*                                                                         */
-/*  based on `src/gzip/ftgzip.c'                                           */
-/*                                                                         */
-/*  This file is part of the FreeType project, and may only be used,       */
-/*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
-/*                                                                         */
-/***************************************************************************/
+/****************************************************************************
+ *
+ * ftbzip2.c
+ *
+ *   FreeType support for .bz2 compressed files.
+ *
+ * This optional component relies on libbz2.  It should mainly be used to
+ * parse compressed PCF fonts, as found with many X11 server
+ * distributions.
+ *
+ * Copyright (C) 2010-2021 by
+ * Joel Klinghed.
+ *
+ * based on `src/gzip/ftgzip.c'
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
 
 
-#include <ft2build.h>
-#include FT_INTERNAL_MEMORY_H
-#include FT_INTERNAL_STREAM_H
-#include FT_INTERNAL_DEBUG_H
-#include FT_BZIP2_H
+#include <freetype/internal/ftmemory.h>
+#include <freetype/internal/ftstream.h>
+#include <freetype/internal/ftdebug.h>
+#include <freetype/ftbzip2.h>
 #include FT_CONFIG_STANDARD_LIBRARY_H
 
 
-#include FT_MODULE_ERRORS_H
+#include <freetype/ftmoderr.h>
 
 #undef FTERRORS_H_
 
@@ -38,14 +37,10 @@
 #define FT_ERR_PREFIX  Bzip2_Err_
 #define FT_ERR_BASE    FT_Mod_Err_Bzip2
 
-#include FT_ERRORS_H
+#include <freetype/fterrors.h>
 
 
 #ifdef FT_CONFIG_OPTION_USE_BZIP2
-
-#ifdef FT_CONFIG_OPTION_PIC
-#error "bzip2 code does not support PIC yet"
-#endif
 
 #define BZ_NO_STDIO /* Do not need FILE */
 #include <bzlib.h>
@@ -75,7 +70,7 @@
     FT_Pointer  p  = NULL;
 
 
-    (void)FT_ALLOC( p, sz );
+    FT_MEM_QALLOC( p, sz );
     return p;
   }
 
@@ -332,12 +327,13 @@
                              FT_ULong      count )
   {
     FT_Error  error = FT_Err_Ok;
-    FT_ULong  delta;
 
 
     for (;;)
     {
-      delta = (FT_ULong)( zip->limit - zip->cursor );
+      FT_ULong  delta = (FT_ULong)( zip->limit - zip->cursor );
+
+
       if ( delta >= count )
         delta = count;
 
@@ -475,8 +471,8 @@
     memory = source->memory;
 
     /*
-     *  check the header right now; this prevents allocating unnecessary
-     *  objects when we don't need them
+     * check the header right now; this prevents allocating unnecessary
+     * objects when we don't need them
      */
     error = ft_bzip2_check_header( source );
     if ( error )
@@ -499,7 +495,7 @@
 
     stream->size  = 0x7FFFFFFFL;  /* don't know the real size! */
     stream->pos   = 0;
-    stream->base  = 0;
+    stream->base  = NULL;
     stream->read  = ft_bzip2_stream_io;
     stream->close = ft_bzip2_stream_close;
 

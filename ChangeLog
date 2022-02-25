@@ -1,2352 +1,1685 @@
-2018-05-01  Werner Lemberg  <wl@gnu.org>
+2021-12-02  Werner Lemberg  <wl@gnu.org>
 
-	* Version 2.9.1 released.
-	=========================
+	* Version 2.11.1 released.
+	==========================
 
+	Tag sources with `VER-2-11-1'.
 
-	Tag sources with `VER-2-9-1'.
+	* docs/VERSION.TXT: Add entry for version 2.11.1.
+	* docs/CHANGES, docs/release: Updated.
 
-	* docs/VERSION.TXT: Add entry for version 2.9.1.
-	* docs/CHANGES: Updated.
-
-	* README, Jamfile (RefDoc), builds/windows/vc2005/freetype.vcproj,
-	src/base/ftver.rc, builds/windows/vc2005/index.html,
-	builds/windows/vc2008/freetype.vcproj,
-	builds/windows/vc2008/index.html,
-	builds/windows/vc2010/freetype.vcxproj,
-	builds/windows/vc2010/index.html,
-	builds/windows/visualc/freetype.dsp,
-	builds/windows/visualc/freetype.vcproj,
-	builds/windows/visualc/index.html,
-	builds/windows/visualce/freetype.dsp,
-	builds/windows/visualce/freetype.vcproj,
-	builds/windows/visualce/index.html,
-	builds/wince/vc2005-ce/freetype.vcproj,
-	builds/wince/vc2005-ce/index.html,
-	builds/wince/vc2008-ce/freetype.vcproj,
-	builds/wince/vc2008-ce/index.html: s/2.9/2.9.1/, s/29/291/.
+	* README, src/base/ftver.rc, builds/windows/vc2010/index.html,
+	builds/windows/visualc/index.html, builds/windows/visualce/index.html,
+	builds/wince/vc2005-ce/index.html, builds/wince/vc2008-ce/index.html,
+	docs/freetype-config.1: s/2.11.0/2.11.1/, s/2110/2111/.
 
 	* include/freetype/freetype.h (FREETYPE_PATCH): Set to 1.
 
-	* builds/unix/configure.raw (version_info): Set to 22:1:16.
+	* builds/unix/configure.raw (version_info): Set to 24:1:18.
 	* CMakeLists.txt (VERSION_PATCH): Set to 1.
 
-	* include/freetype/ftgasp.h: Use FT_BEGIN_HEADER and FT_END_HEADER.
+	* builds/toplevel.mk (version_tag, CHANGELOG_SCRIPT): New variables.
+	(do-dist): Generate `ChangeLog` file with all commits since last release.
 
-2018-04-26  Werner Lemberg  <wl@gnu.org>
+2021-11-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	Another fix for handling invalid format 2 cmaps.
+	[builds/windows] Improve debugging.
 
-	Sigh.
+	* builds/windows/ftdebug.c (FT_Message, FT_Panic): Buffer output
+	and call `OutputDebugStringA` only if `IsDebuggerPresent`.
+	[_WIN32_WCE] (OutputDebugStringA): Implement the missing API.
 
-	Reported as
+2021-11-29  Seigo Nonaka  <nona@google.com>
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=8003
+	* src/base/ftobjs.c (FT_Request_Metrics): Fix build warning on Android.
 
-	* src/sfnt/ttcmap.c (tt_cmap2_char_next): Adjust condition to avoid
-	an endless loop.
+	Use casts since `FT_USHORT_MAX` is unsigned short in bionic (libc used in
+	Android).
 
-2018-04-24  Ben Wagner  <bungeman@google.com>
+2021-11-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[base] Avoid undefined behaviour in lcd filtering code (#53727).
+	* builds/windows/vc2010/freetype.vcxproj (DlgCopy): Minor tweak.
 
-	* src/base/ftlcdfil.c (ft_lcd_filter_fir, _ft_lcd_filter_legacy):
-	Ensure `height > 0'.
+2021-11-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2018-04-22  Werner Lemberg  <wl@gnu.org>
+	* src/truetype/ttpload.c (tt_face_load_hdmx): Added comments.
 
-	* src/base/ftoutln.c (FT_Outline_Decompose): Improve error tracing.
+2021-11-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2018-04-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+	[truetype] Quietly reject out-of-spec `hdmx` tables.
 
-	[base] Fix bitmap emboldening.
+	The `hdmx` table is optional and can be safely rejected without
+	an error if it does not follow specifications. The record size
+	must be equal to the number of glyphs + 2 + 32-bit padding.
 
-	Bug introduced after release 2.8.
+	* src/truetype/ttpload.c (tt_face_load_hdmx): Thoroughly check
+	the record size and improve tracing.
 
-	* src/base/ftbitmap.c (ft_bitmap_assure_buffer): We use
-	`FT_QALLOC_MULT', which doesn't zero out the buffer.  Adjust the
-	bitmap copying code to take care of this fact.
+2021-11-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2018-04-22  Werner Lemberg  <wl@gnu.org>
+	[truetype] Partly revert 5b626281.
 
-	Another fix for handling invalid format 2 cmaps.
+	Fixes #1118.
 
-	The previous commit was incomplete.
+	* src/truetype/ttpload.c (tt_face_load_hdmx): Do not assume that
+	`record_size` is rounded even though the records are padded.
 
-	Reported as
+2021-11-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=7928
+	* builds/windows/vc2010/freetype.vcxproj (DlgCopy): Use transforms.
 
-	* src/sfnt/ttcmap.c (tt_cmap2_char_next): Adjust condition to avoid
-	an endless loop.
+2021-11-22  Werner Lemberg  <wl@gnu.org>
 
-2018-04-19  Werner Lemberg  <wl@gnu.org
+	Update `CHANGES` files, other minor whitespace and documentation issues.
 
-	[autofit] Add support for Georgian Mtavruli characters.
+2021-11-21  Werner Lemberg  <wl@gnu.org>
 
-	This will be part of the forthcoming Unicode 11.0.
+	formats.txt: Add info about WOFF and WOFF2.
 
-	* src/autofit/afblue.dat: Add blue zone data for Mtavruli.
-	* src/autofit/afblue.c, src/autofit/afblue.h: Regenerated.
+2021-11-21  Werner Lemberg  <wl@gnu.org>
 
-	* src/autofit/afscript.h: Add Mtavruli standard character.
+	meson.build: Initialize `common_ldflags`.
 
-2018-04-18  Werner Lemberg  <wl@gnu.org>
+2021-11-21  Lukas Oberhuber  <@lukaso>
 
-	Fix handling of invalid format 2 cmaps.
+	* meson.build: Fix compatibility version on MacOS.
 
-	The problem was introduced after the last release.
+	Fixes #1117.
 
-	Reported as
+2021-11-21  Werner Lemberg  <wl@gnu.org>
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=7828
-
-	* src/sfnt/ttcmap.c (tt_cmap2_char_next): Avoid endless loop.
-
-2018-04-17  Werner Lemberg  <wl@gnu.org>
-
-	[truetype] Integer overflow issues.
+	* src/truetype/ttinterp.c (Ins_MD): Avoid `FT_ABS`.
 
 	Reported as
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=7739
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=38562
 
-	* src/truetype/ttinterp.c (Ins_CEILING): Use FT_PIX_CEIL_LONG.
+2021-11-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2018-04-16  Werner Lemberg  <wl@gnu.org>
+	* include/freetype/fttypes.h (FT_MAKE_TAG): Remove the same casting.
 
-	[truetype] Integer overflow issues.
+2021-11-20  Werner Lemberg  <wl@gnu.org>
 
-	Reported as
+	[gxvalid] Fix minor compilation warning.
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=7718
+	* src/gxvalid/gxvmort5.c (gxv_mort_subtable_type5_subtable_setup): Declare
+	as static.
 
-	* src/truetype/ttinterp.c (Ins_MIRP): Use ADD_LONG.
+2021-11-20  Werner Lemberg  <wl@gnu.org>
 
-2018-04-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
+	[smooth] Fix stand-alone compilation.
 
-	[build] Use `info' function of make 3.81.
+	* src/smooth/ftgrays.c (FT_Trace_Enable, FT_Trace_Disable)[STANDALONE_]:
+	Define.
 
-	* configure, docs/INSTALL, docs/INSTALL.CROSS, docs/INSTALL.GNU,
-	docs/INSTALL.UNIX, docs/MAKEPP: Bump make version requirements.
+2021-11-20  Werner Lemberg  <wl@gnu.org>
 
-	* builds/detect.mk (std_setup): Replace `echo' with `info'.
-	(dos_setup): Removed.
-	* builds/unix/install.mk, builds/modules.mk, builds/dos/detect.mk,
-	builds/windows/detect.mk, builds/os2/detect.mk: Updated.
-	* builds/newline: No longer needed.
+	Avoid undefined left-shifts.
 
-2018-04-15  Werner Lemberg  <wl@gnu.org>
-
-	[truetype]: Limit `SLOOP' bytecode argument to 16 bits.
-
-	This fixes
-
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=7707
-
-	* src/truetype/ttinterp.c (Ins_SLOOP): Do it.
-
-2018-04-14  Werner Lemberg  <wl@gnu.org>
-
-	[truetype] Integer overflow issues.
+	We really have to use double casts to avoid issues with C's and C++'s
+	signedness propagation rules in implicit casts.
 
 	Reported as
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=7652
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=41178
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=41182
 
-	* src/truetype/ttinterp.c (Ins_MDAP): Use SUB_LONG.
+	* include/freetype/config/public-macros.h (FT_STATIC_CAST,
+	FT_REINTERPRET_CAST): Modify macro to take two arguments.
+	Update all callers.
+	(FT_STATIC_BYTE_CAST): New macro.
 
-2018-04-14  Werner Lemberg  <wl@gnu.org>
+	* include/freetype/freetype.h (FT_ENC_TAG): Use `FT_STATIC_BYTE_CAST`.
+	* include/freetype/ftimage.h (FT_IMAGE_TAG): Ditto.
+	* include/freetype/fttypes.h (FT_MAKE_TAG): Ditto.
+	Use `FT_Tag` for casting.
 
-	[autofit] Update to Unicode 11.0.0.
+	* src/ftraster/ftmisc.h (FT_MAKE_TAG): Removed, no longer needed.
+	(FT_STATIC_BYTE_CAST): New macro.
 
-	But no support new scripts (volunteers welcomed).
+	* src/smooth/ftgrays.c (FT_STATIC_CAST): Replace with...
+	(FT_STATIC_BYTE_CAST): ... this.
 
-	* src/autofit/afranges.c (af_arab_nonbase_uniranges,
-	af_beng_nonbase_uniranges, af_cakm_nonbase_uniranges,
-	af_deva_nonbase_uniranges, af_geor_uniranges,
-	af_gujr_nonbase_uniranges, af_mlym_nonbase_uniranges,
-	af_nkoo_nonbase_uniranges, af_telu_nonbase_uniranges,
-	af_hani_uniranges): Add new data.
+2021-11-18  Werner Lemberg  <wl@gnu.org>
 
-2018-04-10  Nikolaus Waxweiler  <madigens@gmail.com>
+	Provide C++ versions for public macros with casts.
 
-	* CMakeLists.txt, builds/cmake/FindHarfBuzz.cmake: Extensive
-	modernization measures.
+	Many FreeType clients use C++.  However `g++ -Wold-style-cast` warns for
+	macros with C-style casts even for system header files; this also affects
+	directories included with `-isystem`.  While this could be seen as a problem
+	with g++, the problem is more a philosophical one: Over the time, C and C++
+	diverged more and more, and some features of C are no longer the 'right'
+	solution in C++.
 
-	This brings up the minimum required CMake version to 2.8.12.
+	* include/freetype/config/public-macros.h (FT_STATIC_CAST,
+	FT_REINTERPRET_CAST): New macros.
 
-	The installation paths follow the GNU defaults now, e.g. installing on a
-	64 bit host will place binaries into the lib64/ folder on e.g. Fedora.
+	* include/freetype/freetype.h (FT_ENC_TAG, FT_LOAD_TARGET_,
+	FT_LOAD_TARGET_MODE): Use `FT_STATIC_CAST`.
+	Correctly handle negative 'signed char' input.
+	* include/freetype/ftimage.h (FT_IMAGE_TAG): Ditto.
+	* include/freetype/fttypes.h (FT_MAKE_TAG, FT_BOOL): Ditto.
+	* include/freetype/ftmodapi.h (FT_FACE_DRIVER_NAME): Use
+	`FT_REINTERPRET_CAST`.
 
-	Symbols are hidden by default (e.g. `-fvisibility=hidden' on GCC).
+	* src/smooth/ftgrays.c (FT_STATIC_CAST)[STANDALONE_]: New macro.
+	[!STANDALONE]: Include `FT_CONFIG_CONFIG_H`.
 
-	CMake will no longer look for a C++ compiler.
+	Fixes #1116.
 
-	Library and .so version now match the Autotools build.
+2021-11-16  Werner Lemberg  <wl@gnu.org>
 
-	Comments in the build file and informational messages now use platform
-	agnostic example commands.
+	Fix clang++ warnings.
 
-	ftoption.h and ftconfig.h are written directly without a redundant `-new'
-	copy.
+	* src/*: Initialize some variables to NULL.
 
-	External dependencies are expressed as option()s and will turn up as such
-	in cmake-gui.
+2021-11-16  Werner Lemberg  <wl@gnu.org>
 
-	Internal: Properties such as dependencies and include directories are now
-	privately set on the freetype library instead of globally.
+	[truetype] Updates for the forthcoming OpenType 1.9 standard (2/2).
 
-	The CPack definitions have been cleaned up, the `make dist' has been
-	removed. Source packages generated with CPack don't contain Autotools
-	files and aren't used by the maintainters anyway.
+	* src/truetype/ttgxvar.c (ft_var_load_item_variation_store):
+	s/shortDeltaCount/wordDeltaCount/ (as done in the specification, too).
+	Recognize new format and reject it for now.
 
-	On Windows, src/base/ftver.rc is compiled to decorate the library with
-	version and copyright information.
+2021-11-16  Werner Lemberg  <wl@gnu.org>
 
-	A pkg-config file is now generated and installed.
+	[truetype] Updates for the forthcoming OpenType 1.9 standard (1/2).
 
-2018-04-09  Werner Lemberg  <wl@gnu.org>
+	This is in preparation for implementing `DeltaSetIndexMap` format 1, which
+	is used by `COLR` v1 tables, and which allows 32bit indices.
 
-	[truetype] Integer overflow issues.
+	  https://docs.microsoft.com/en-us/typography/opentype/otspec190/delta/otvarcommonformats_delta.html
 
-	Reported as
+	* src/truetype/ttgxvar.h (GX_DeltaSetIdxMapRec): Change type of `mapCount`
+	to `FT_ULong`.
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=7453
+	* src/truetype/ttgxvar.c (ft_var_load_delta_set_index_mapping): Add argument
+	for passing the table size; update caller.
+	Implement new format.
 
-	* src/truetype/ttinterp.c (Round_Super, Round_Super_45): Use
-	ADD_LONG and SUB_LONG.
+2021-11-14  Werner Lemberg  <wl@gnu.org>
 
-2018-04-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
+	Fix clang warnings.
 
-	[windows, wince] Clean up legacy project files.
+	* src/gxvalid/gxvcmmn.h (GXV_SET_ERR_IF_PARANOID): Use 'do' block.
+	* src/gxvalid/gxvmod.c (GXV_TABLE_LOAD, GXV_TABLE_VALIDATE): Ditto.
 
-	* builds/wince/vc2005-ce/freetype.vcproj,
-	builds/wince/vc2008-ce/freetype.vcproj,
-	builds/windows/vc2005/freetype.vcproj,
-	builds/windows/vc2008/freetype.vcproj,
-	builds/windows/visualce/freetype.vcproj,
-	builds/windows/visualce/freetype.dsp,
-	builds/windows/visualc/freetype.vcproj,
-	builds/windows/visualc/freetype.dsp: Remove per-file compile flags.
+	* src/smooth/ftgrays.c (gray_convert_glyph): Add cast.
 
-2018-04-04  Werner Lemberg  <wl@gnu.org>
+	* src/type1/t1gload.c (T1_Parse_Glyph_And_Get_Char_String): Remove cast.
+	* src/type1/t1load.c (read_binay_data): Use `FT_ULong` for `size` parameter.
+	(parse_subrs, parse_charstrings, parse_dict): Ditto; also add some casts.
 
-	[cff, type1] Sanitize `BlueFuzz' and `BlueShift'.
+2021-11-13  Dominik Röttsches  <drott@chromium.org>
 
-	Reported as
+	[sfnt] Avoid undefined shifts in `COLR` v1 paint parsing
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=7371
+	* src/sfnt/ttcolr.c (read_paint, tt_face_get_paint): Tighten shift
+	behavior by using multiplication, mostly using macros from ftcalc.h.
 
-	* src/cff/cffload.c (cff_load_private_dict): Sanitize
-	`priv->blue_shift' and `priv->blue_fuzz' to avoid overflows later
-	on.
+	Fixes: https://bugs.chromium.org/p/chromium/issues/detail?id=1269168
 
-	* src/type1/t1load.c (T1_Open_Face): Ditto.
+2021-11-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2018-04-04  Ben Wagner  <bungeman@google.com>
+	[builds/windows] Improve `DlgCopy` target.
 
-	* src/truetype/ttobjs.c (trick_names): Add 3 tricky fonts (#53554),
-	`DFHei-Md-HK-BF', `DFKaiShu-Md-HK-BF' and `DFMing-Bd-HK-BF'.
-	(tt_check_trickyness_sfnt_ids): Add checksums for 3 tricky fonts
-	in above.
+	Fixes #1113.
 
-2018-04-01  Werner Lemberg  <wl@gnu.org>
+	* builds/windows/vc2010/freetype.vcxproj: Run `DlgCopy` conditionally
+	and decouple it from `Build`.
 
-	* builds/toplevel.mk (work): Use $(SEP).
+2021-11-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	This fixes the `make refdoc' using Cygwin: $(CAT) is `type' on this
-	platform, and this program only understands backslashes in paths.
+	Explicitly define `FT_MSB` for Clang.
 
-	Reported by Nikhil Ramakrishnan <ramakrishnan.nikhil@gmail.com>.
+	* include/freetype/internal/ftcalc.h [__clang__] (FT_MSB): Updated.
 
-2018-03-30  Werner Lemberg  <wl@gnu.org>
+2021-11-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[truetype] Fix memory leak (only if tracing is on).
+	* src/truetype/ttgxvar.c (ft_var_to_normalized): Edge optimization.
 
-	* src/truetype/ttgxvar.c (TT_Get_MM_Var) [FT_DEBUG_LEVEL_TRACE}: Fix
-	it.
+2021-11-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2018-03-23  Ben Wagner  <bungeman@google.com>
+	Additional `FT_MSB` macro definitions.
 
-	[sfnt] Correctly handle missing bitmaps in sbix format (#53404).
+	Better macros for Windoes CE and ARM in general, based on !109
+	from metarutaiga.
 
-	* src/sfnt/ttfsbit.c (tt_face_load_sbix_image): Fix return value.
+	* include/freetype/internal/ftcalc.h [_MSC_VER] (FT_MSB): Updated.
 
-2018-03-23  Ben Wagner  <bungeman@google.com>
+2021-11-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[truetype] Fix advance of empty glyphs in bitmap fonts (#53393).
+	[build/windows] Remove logging from default debug configurations.
 
-	* src/truetype/ttgload.c (TT_Load_Glyph): Apply scaling to metrics
-	for empty bitmaps.
+	DLG is rather costly for performance and should be used judiciously.
+	This removes it from the default configurations but gives an example
+	how to enable it using the `UserDefines` property.
 
-2018-03-22  Werner Lemberg  <wl@gnu.org>
+	* builds/windows/vc2010/freetype.vcxproj: Hide FT_DEBUG_LOGGING.
 
-	Remove `ftlcdfil.c' and `ftfntfmt.c' from build files (#53415).
+2021-11-08  Werner Lemberg  <wl@gnu.org>
 
-	builds/amiga/makefile, builds/amiga/makefile.os4,
-	builds/amiga/smakefile, builds/mac/FreeType.m68k_cfm.make.txt,
-	builds/mac/FreeType.m68k_far.make.txt,
-	builds/mac/FreeType.ppc_carbon.make.txt,
-	builds/mac/FreeType.ppc_classic.make.txt,
-	builds/symbian/freetype.mmp, builds/wince/vc2005-ce/freetype.vcproj,
-	builds/wince/vc2008-ce/freetype.vcproj,
-	builds/windows/vc2005/freetype.vcproj,
-	builds/windows/vc2008/freetype.vcproj,
-	builds/windows/vc2010/freetype.vcxproj,
-	builds/windows/vc2010/freetype.vcxproj.filters,
-	builds/windows/visualc/freetype.dsp,
-	builds/windows/visualc/freetype.vcproj,
-	builds/windows/visualce/freetype.dsp,
-	builds/windows/visualce/freetype.vcproj, vms_make.com: Do it.
+	* src/sfnt/sfobjs.c (sfnt_open_font): Fix typo.
 
-2018-03-13  Werner Lemberg  <wl@gnu.org>
+2021-11-08  Werner Lemberg  <wl@gnu.org>
 
-	* src/sfnt/ttcmap.c (tt_cmap2_validate): Fix potential numeric
-	overflow.
+	* src/gxvalid.*, src/otvalid.*: Fix `-Wformat` warnings.
 
-2018-03-13  Werner Lemberg  <wl@gnu.org>
+2021-11-08  Werner Lemberg  <wl@gnu.org>
 
-	Fix cmap format 2 handling (#53320).
+	[pshinter] Fix C++ compilation.
 
-	The patch introduced for #52646 was not correct.
+	* src/pshinter/pshalgo.c (psh_compute_dir): Fix type of `result`.
+	(psh_hint_table_find_strong_points): Add cast.
 
-	* src/sfnt/ttcmap.c (tt_cmap2_char_next): Adjust condition.
+2021-11-08  Werner Lemberg  <wl@gnu.org>
 
-2018-03-10  Nikolaus Waxweiler  <madigens@gmail.com>
+	[sfnt] Reduce footprint if WOFF and WOFF2 support is not needed.
 
-	* CMakeLists.txt (BASE_SRCS): Update to changes from 2018-03-05.
+	Based on a patch from metarutaiga (MR !106).  The gist of this commit is
+	that it doesn't make sense to support WOFF without compression (which would
+	be only possible in WOFF 1.0 anyway).
 
-2018-03-09  Chun-wei Fan  <fanc999@yahoo.com.tw>
+	* src/sfnt/sfobjs.c (sfnt_open_font): Guard WOFF code with
+	`FT_CONFIG_OPTION_USE_ZLIB` block.
+	Guard WOFF2 code with `FT_CONFIG_OPTION_USE_BROTLI` block.
 
-	* CMakeLists.txt [win32]: Allow MSVC DLL builds (#53287).
+	* src/sfnt/sfwoff.c, src/sfnt/sfwoff.h: Guard files with
+	`FT_CONFIG_OPTION_USE_ZLIB` blocks, not parts of the code.
 
-	Do not limit DLL builds to MinGW, since we already have
-	`__declspec(dllexport)' directives in `ftconfig.h'.
-	Also suppress more warnings for POSIX functions.
+	* src/sfnt/sfwoff2.c, src/sfnt/sfwoff2.h, src/sfnt/woff2tags.c,
+	src/sfnt/woff2tags.h: Guard files with `FT_CONFIG_OPTION_USE_BROTLI` blocks,
+	not parts of the code.
 
-2018-03-08  Hugh McMaster  <hugh.mcmaster@outlook.com>
+	Fixes #1111.
 
-	Make installation of `freetype-config' optional (#53093).
+2021-11-08  Werner Lemberg  <wl@gnu.org>
 
-	* builds/unix/configure.raw: Add option `--enable-freetype-config'
-	and set `INSTALL_FT2_CONFIG'.
-	* builds/unix/unix-def.in (INSTALL_FT2_CONFIG): Define.
-	* builds/unix/install.mk (install): Handle it.
+	[truetype] Make trickyness checks depend on TT_USE_BYTECODE_INTERPRETER.
 
-2018-03-05  Werner Lemberg  <wl@gnu.org>
+	Based on a patch from metarutaiga (MR !106).
 
-	Make `ftlcdfil.c' part of the `base' module.
+	* src/truetype/ttobjs.c (tt_skip_pdffont_random_tag,
+	tt_check_trickyness_family, tt_synth_sfnt_checksum, tt_get_sfnt_checksum,
+	tt_check_trickyness_sfnt_ids, tt_check_trickyness): Put functions into a
+	`TT_USE_BYTECODE_INTERPRETER` block.
+	(tt_face_init): Put trickyness checks into a `TT_USE_BYTECODE_INTERPRETER`
+	block.
 
-	`ftobjs.c' needs `ft_lcd_padding'.
+	Fixes #1111.
 
-	Problem reported by duhuanpeng <548708880@qq.com>.
+2021-11-08  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* modules.cfg (BASE_EXTENSIONS): Don't include `ftlcdfil.c'.
+	* src/sfnt/ttload.c (tt_face_load_gasp): Fix a type mismatch warning.
 
-	* src/base/ftbase.c: Include `ftlcdfil.c'.
-	* src/base/rules.mk (BASE_SRC): Add `ftlcdfil.c'.
-	* src/base/Jamfile (_sources): Adjusted.
+2021-11-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* docs/INSTALL.ANY: Updated.
+	[dlg] Define DLG_STATIC explicitly.
 
-2018-03-05  Werner Lemberg  <wl@gnu.org>
+	DLG_STATIC is intended to disable Windows DLL linking attributes.
+	It does not hurt to define it explicitly when we wrap DLG code.
+	This fixes tons of LNK4286 and C4273 warnings from MSVC if we
+	forget to define DLG_STATIC as a compiler option.
 
-	Make `ftfntfmt.c' part of the `base' module.
+	* builds/windows/vc2010/freetype.vcxproj: Remove DLG_STATIC option.
+	* src/dlg/dlgwrap.c [FT_DEBUG_LOGGING]: Define DLG_STATIC.
+	* include/freetype/internal/ftdebug.h [FT_DEBUG_LOGGING]: Ditto.
 
-	`ftobjs.c' needs `FT_Get_Font_Format'.
+2021-11-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	Problem reported by duhuanpeng <548708880@qq.com>.
+	[dlg] Lighten up the inclusions.
 
-	* modules.cfg (BASE_EXTENSIONS): Don't include `ftfntfmt.c'.
+	The DLG wrapper needs to know if FT_DEBUG_LOGGING is defined in
+	`ftoption.h`. It does not need entire FreeType.
 
-	* src/base/ftbase.c: Include `ftfntfmt.c'.
-	* src/base/rules.mk (BASE_SRC): Add `ftfntfmt.c'.
-	* src/base/Jamfile (_sources): Adjusted.
+	* src/dlg/dlgwrap.c: Include FT_CONFIG_OPTIONS_H directly.
 
-	* docs/INSTALL.ANY: Updated.
+2021-11-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2018-03-01  Werner Lemberg  <wl@gnu.org>
+	[truetype] Avoid some memory zeroing in variations.
 
-	* src/truetype/ttinterp.c (TT_RunIns): Fix tracing arguments.
+	* src/truetype/ttgxvar.c (ft_var_readpackeddeltas, ft_var_load_avar,
+	ft_var_load_item_variation_store, ft_var_load_gvar): Use FT_QNEW_ARRAY
+	if memory immediately initialized or discarded otherwise.
 
-2018-02-23  Werner Lemberg  <wl@gnu.org>
+2021-11-05  Jany Belluz  <jany.belluz@daltonmaag.com>
 
-	* builds/unix/configure.raw: Need HarfBuzz 1.3.0 or newer.
+	[truetype] Fix handling of packed deltas in Variation Fonts.
 
-	Problem reported by Alan Coopersmith <alan.coopersmith@oracle.com>.
+	* src/truetype/ttgxvar (ft_var_readpackeddeltas): Don't expect the number of
+	bytes used to encode the deltas to be higher than the number of encoded
+	values.  The specification allows a very compact encoding; for example, a
+	list of 200 zeros can be encoded with just a couple of bytes.
 
-2018-02-17  Werner Lemberg  <wl@gnu.org>
+	We now count the consumed bytes to make sure to not read more than expected.
 
-	[sfnt] Prefer `CBDT'/`CBLC' over `glyf' table (#53154).
+2021-11-04  Jany Belluz  <jany.belluz@daltonmaag.com>
 
-2018-02-06  Werner Lemberg  <wl@gnu.org>
+	[truetype] Fix CVAR handling of tuples for all points.
 
-	[truetype] Integer overflow issues.
+	* src/truetype/ttgxvar (tt_face_vary_cvt): Function
+	`ft_var_readpackedpoints`, when it returns `ALL_POINTS`, also sets
+	`point_count` to value 0.  However, the CVAR code was incorrectly expecting
+	that `point_count` would be set to match the length of the CVT table.
 
-	Reported as
+2021-11-04  Jany Belluz  <jany.belluz@daltonmaag.com>
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=6027
+	* src/truetype/ttgxvar.c: Fix typos in macros that guard CVAR code.
 
-	* src/truetype/ttinterp.c (Ins_MSIRP, Ins_MIAP, Ins_MIRP): Use
-	SUB_LONG; avoid FT_ABS.
+2021-11-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2018-02-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+	* docs/INSTALL: Mention Meson and MSBuild more prominently.
 
-	[unix] Use -fvisibility=hidden.
+2021-11-03  Gabor Kertesz  <gabor.kertesz@linaro.org>
 
-	It is now widely recommended that ELF shared libraries hide symbols
-	except those with explicit __attribute__((visibility("default"))).
-	This is supported by all major compilers and should rather be an
-	option in libtool.
+	[libpng] Update Meson wrap for win-arm64
 
-	* builds/unix/configure.raw: Add -fvisibility=hidden to CFLAGS.
-	* builds/unix/ftconfig.in, builds/vms/ftconfig.h,
-	include/freetype/config/ftconfig.h (FT_EXPORT): Use visibility
-	attribute.
+	1.6.37-5 released patches for win-arm64 to successfully build
+	libpng with Meson:
+	https://github.com/mesonbuild/wrapdb/pull/205
+	https://github.com/mesonbuild/wrapdb/pull/216
 
-2018-01-27  Werner Lemberg  <wl@gnu.org>
+	Updated by the following command:
+	meson wrap update libpng
 
-	[truetype] Better protection against invalid VF data.
+	Tested on win-arm64 and x64.
 
-	Reported as
+2021-11-03  Dominik Röttsches  <drott@chromium.org>
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=5739
+	[sfnt] Clarify `COLR` v1 FT_Paint* format representations
 
-	Bug introduced in commit 08cd62deedefe217f2ea50e392923ce8b5bc7ac7.
+	* include/freetype/ftcolor.h (FT_PaintLinearGradient,
+	FT_PaintRadialGradient, FT_PaintSweepGradient, FT_PaintTransform,
+	FT_PaintTranslate, FT_PaintScale, FT_PaintRotate, FT_PaintSkew): Clarify
+	16.16 fixed point representation of struct fields.
+	* src/sfnt/ttcolr.c (read_paint): Shift coordinates for
+	FT_PaintLinearGradient, FT_PaintRadialGradient, FT_PaintSweepGradient
+	accordingly.
 
-	* src/truetype/ttgxvar.c (TT_Set_Var_Design): Always initialize
-	`normalizedcoords'.
+	Fixes: https://gitlab.freedesktop.org/freetype/freetype/-/issues/1110
 
-2018-01-27  Werner Lemberg  <wl@gnu.org>
+2021-11-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/truetype/ttinterp.c (Ins_GETVARIATION): Avoid NULL reference.
+	[builds/windows] Let MSBuild handle DLG copy.
 
-	Reported as
+	* builds/windows/vc2010/freetype.vcxproj: Specify DlgCopy target.
+	* builds/windows/vc2010/script.bat: Deleted.
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=5736
+2021-10-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2018-01-27  Werner Lemberg  <wl@gnu.org>
+	* src/truetype/ttgload.c (load_truetype_glyph): Fix MSVC warning C4312.
 
-	* src/truetype/ttgxvar.c (tt_set_mm_blend): Minor.
+2021-10-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2018-01-27  Werner Lemberg  <wl@gnu.org>
+	[builds/windows] Separate MSVC linker and librarian.
 
-	[truetype] Better trace VF instances.
-
-	* src/truetype/ttgxvar.c (ft_var_to_normalized): Don't emit number
-	of coordinates.
-	(TT_Get_MM_Var): Trace instance indices names.
-	(TT_Set_Var_Design): Updated.
-
-2018-01-27  Werner Lemberg  <wl@gnu.org>
-
-	[truetype] Beautify tracing of VF axis records.
-
-	* src/truetype/ttgxvar.c (TT_Get_MM_Var): Show axis records in a
-	table-like manner.
-
-2018-01-26  Ben Wagner  <bungeman@google.com>
-
-	[truetype] Fix multiple calls of `FT_Get_MM_Var' (#52955).
-
-	* src/truetype/ttgxvar.c (TT_Get_MM_Var): Set
-	`face->blend->num_axis' in case we have to initialize the
-	`face->blend'.
-
-2018-01-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[apinames] Anonymous version map for GNU linker.
-
-	* src/tools/apinames.c (PROGRAM_VERSION): Set to 0.3.
-	(OutputFormat): Add `OUTPUT_GNU_VERMAP'.
-	(names_dump): Handle it.
-	(usage): Updated.
-	(main): Handle new command line flag `-wL'.
-
-2018-01-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[unix] Call libtool to clean up.
-
-	* builds/unix/install.mk (clean_project_unix, distclean_project_unix):
-	Use libtool.
-	* builds/freetype.mk: Minor.
-
-2018-01-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	* src/base/ftver.rc: Fix mingw-w64 compilation.
-
-2018-01-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[build] Enable VERSIONINFO resource for Cygwin/MinGW.
-
-	* builds/unix/configure.raw: Check for resource compiler.
-	* builds/unix/unix-cc.in: Conditionally set up resource compiler.
-	* builds/freetype.mk: Add conditional rule for `ftver.rc'.
-	* src/base/ftver.rc: Copyright notice and year update.
-
-2018-01-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[build] Move VERSIONINFO resource.
+	MSVC uses LIB for static and LINK for dynamic libraries. They are
+	related but the former has much smaller set of options.
 
 	* builds/windows/vc2010/freetype.vcxproj: Updated.
-	* builds/windows/ftver.rc: Move file from here...
-	* src/base/ftver.rc: ... to here.
 
-2018-01-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2021-10-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[build] Expand dllexport/dllimport to Cygwin/MinGW.
+	[builds/windows] Revise MSVC linking optimizations.
 
-	* include/freetype/config/ftconfig.h: Respect DLL_EXPORT,
-	s/_MSC_VER/_WIN32/.
-	* builds/unix/ftconfig.in: Replicate here.
-	* builds/vms/ftconfig.h: Replicate here.
+	* builds/windows/vc2010/freetype.vcxproj: Optimize DLL linking only.
+	* builds/windows/visualc/freetype.dsp: Ditto.
+	* builds/windows/visualc/freetype.vcproj: Ditto.
 
-2018-01-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2021-10-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[build] Improve and document MSVC build.
+	[woff] Optimize table tagging.
 
-	* include/freetype/config/ftconfig.h: Guard dllexport/dllimport
-	attributes with _DLL and FT2_DLLIMPORT.
-	* builds/windows/vc2010/index.html: Update documentation.
+	* include/freetype/internal/wofftypes.h (WOFF_TableRec): Use
+	32-bit tag.
+	* src/sfnt/sfwoff.c (woff_open_font): Use 32-bit tag.
 
-2018-01-10  Steve Robinson  <ssrobins@gmail.com>
+2021-10-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* CMakeLists.txt [win32]: Suppress warnings for POSIX functions.
+	[woff2] Optimize table tagging.
 
-2018-01-10  Ewald Hew  <ewaldhew@gmail.com>
+	Fixes #1107.
 
-	[psaux] Correctly handle Flex features (#52846).
+	* include/freetype/internal/wofftypes.h (WOFF2_TableRec): Use
+	32-bit tag.
+	* src/sfnt/sfwoff2.c (compare_tags, find_table, woff2_open_font):
+	Use 32-bit tag.
+	* src/sfnt/woff2tags.[ch] (woff2_known_tags): Use static storage and
+	return 32-bit tag.
 
-	* src/psaux/psintrp.c (cf2_interpT2CharString) <cf2_cmdVMOVETO,
-	cf2_cmdHMOVETO>: Do not move if doing Flex.
+2021-10-26  Werner Lemberg  <wl@gnu.org>
 
-2018-01-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
+	Formatting.
 
-	* builds/windows/vc2010/freetype.sln: Synchronize with the project.
+2021-10-26  Ben Wagner  <bungeman@chromium.org>
 
-2018-01-08  Werner Lemberg  <wl@gnu.org>
+	[mm] Tolerate missing Blend dictionary entries
 
-	* Version 2.9 released.
-	=======================
+	In a Multiple Master font, the Blend dictionary must contain valid
+	Private, FontInfo, and FontBBox. The current code will error if any of
+	these are present and invalid, but will not error and will provide
+	uninitialized data if the Blend dictionary exists but does not contain
+	one of these entries. This change reverts to the older behavior of
+	treating any missing entries as containing all zero data and not
+	returning an error.
 
+	In the future it may be best to keep track of when these are actually
+	initialized and error if they are not.
 
-	Tag sources with `VER-2-9'.
+	* src/type1/t1load.c (t1_allocate_blend): Zero initiailize.
 
-	* docs/VERSION.TXT: Add entry for version 2.9.
+2021-10-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* README, Jamfile (RefDoc), builds/windows/vc2005/freetype.vcproj,
-	builds/windows/vc2005/index.html,
-	builds/windows/vc2008/freetype.vcproj,
-	builds/windows/vc2008/index.html,
-	builds/windows/vc2010/freetype.vcxproj,
-	builds/windows/vc2010/index.html,
-	builds/windows/visualc/freetype.dsp,
-	builds/windows/visualc/freetype.vcproj,
-	builds/windows/visualc/index.html,
-	builds/windows/visualce/freetype.dsp,
-	builds/windows/visualce/freetype.vcproj,
-	builds/windows/visualce/index.html,
-	builds/windows/ftver.rc,
-	builds/wince/vc2005-ce/freetype.vcproj,
-	builds/wince/vc2005-ce/index.html,
-	builds/wince/vc2008-ce/freetype.vcproj,
-	builds/wince/vc2008-ce/index.html: s/2.8.1/2.9/, s/281/29/.
+	[builds/windows] Add MSVC linker optimazations.
 
-	* include/freetype/freetype.h (FREETYPE_MINOR): Set to 9.
-	(FREETYPE_PATCH): Set to 0.
+	We continue to build static libraries with statically linked C run-
+	time and add options to optimize references.
 
-	* builds/unix/configure.raw (version_info): Set to 22:0:16.
-	* CMakeLists.txt (VERSION_PATCH): Set to 0.
+	* builds/windows/vc2010/freetype.vcxproj: Sort entries, add options.
 
-2018-01-07  Werner Lemberg  <wl@gnu.org>
+2021-10-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	Add check for librt, needed for `ftbench' (#52824).
+	* builds/windows/vc2010/freetype.vcxproj: Use MachineARM64.
 
-	* builds/unix/configure.raw (LIB_CLOCK_GETTIME): Define; this will
-	hold `-lrt' if necessary.
+2021-10-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* builds/unix/unix-cc.in (LIB_CLOCK_GETTIME): New variable.
+	[builds/windows] Prioritize x64.
 
-2018-01-07  Ewald Hew  <ewaldhew@gmail.com>
+	* builds/windows/vc2010/freetype.sln: Sort entries.
 
-	[psaux] Fix Type 1 glyphs with too many stem hints.
+2021-10-22  Gabor Kertesz  <gabor.kertesz@linaro.org>
 
-	According to the CFF specification, charstrings can have up to 96 stem
-	hints. Due to hint replacement routines in Type 1 charstrings, some
-	glyphs are rejected by the Adobe engine, which implements the above
-	limit. This fix turns off hinting for such glyphs.
+	[builds/windows] Add ARM64 platform.
 
-	* src/psaux/pshints.c (cf2_hintmap_build): Reset the error from calling
-	`cf2_hintmask_setAll' on a problematic Type 1 charstring and turn off
-	hinting.
+	* builds/windows/vc2010/freetype.sln: Updated
+	* builds/windows/vc2010/freetype.vcxproj: Updated.
+	* builds/windows/vc2010/freetype.vcxproj.filters: Minor fix.
 
-2018-01-06  Werner Lemberg  <wl@gnu.org>
+2021-10-21  Ben Wagner  <bungeman@chromium.org>
 
-	Add `FT_Done_MM_Var'.
+	[mm] Delay setting blend weight and design position.
 
-	This is necessary in case the application's memory routines differ
-	from FreeType.  A typical example is a Python application on Windows
-	that calls FreeType compiled as a DLL via the `ctypes' interface.
-
-	* include/freetype/ftmm.h, src/base/ftmm.c (FT_Done_MM_Var): Declare
-	and define.
-
-	* docs/CHANGES: Updated.
-
-2018-01-03  Werner Lemberg  <wl@gnu.org>
-
-	[truetype] Round offsets of glyph components only if hinting is on.
-
-	* src/truetype/ttgload.c (TT_Process_Composite_Component): Implement
-	it.
-
-2018-01-03  Werner Lemberg  <wl@gnu.org>
-
-	* src/truetype/ttgxvar.c (ft_var_to_design): Remove dead code.
-
-	This is a better fix than the previous commit, which is now
-	reverted.
-
-2018-01-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	Move internal LCD-related declarations.
-
-	* include/freetype/ftlcdfil.h (ft_lcd_padding, ft_lcd_filter_fir):
-	Move from here...
-	* include/freetype/internal/ftobjs.h: ... to here.
-
-2018-01-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	* include/freetype/config/ftconfig.h (FT_EXPORT, FT_EXPORT_DEF)
-	[_MSC_VER]: Limit Visual C++ attributes.
-
-2018-01-03  Werner Lemberg  <wl@gnu.org>
-
-	[truetype] Make blend/design coordinate round-tripping work.
-
-	Behdad reported that setting blend coordinates, then getting design
-	coordinates did incorrectly return the default instance's
-	coordinates.
-
-	* src/truetype/ttgxvar.c (tt_set_mm_blend): Fix it.
-
-2017-12-31  Werner Lemberg  <wl@gnu.org>
-
-	* src/sfnt/ttcmap.c (tt_cmap2_char_next): Fix endless loop.
+	Previously the `blend->weight_vector`, `blend->default_weight_vector`,
+	and `blend->design_pos` were set early to allocated but uninitialized
+	memory under the assumption that the memory would eventually be
+	initialized. However, it is possible that some of the required
+	keywords may not actually be present, leaving the memory uninitialized.
+	This is different from a present but invalid table, which would produce
+	an error.
 
 	Reported as
+	  https://bugs.chromium.org/p/chromium/issues/detail?id=1261762
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=4838
+	* src/type1/t1load.c (t1_allocate_blend): Remove early allocation and
+	initialization.
+	(parse_blend_design_positions, parse_weight_vector): Parse into local
+	and assign to blend if valid.
+	(T1_Open_Face): Check that if a blend exists that it has the weight
+	vector and design positions.
 
-2017-12-31  Werner Lemberg  <wl@gnu.org>
+2021-10-21  Ben Wagner  <bungeman@chromium.org>
 
-	Synchronize other Windows project files.
+	[cff] Commit vstore data and regions on allocation.
 
-	* builds/windows/*: Add missing files.
+	The vstore->regionCount and vstore->dataCount were read directly
+	from the data. However, vstore->varRegionList and vstore->varData
+	would still contain uninitialized entries with uninitialized
+	pointers in the event of an error, leading to issues when attempting
+	to clean up.
 
-2017-12-31  Werner Lemberg  <wl@gnu.org>
+	Reportd as
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40104
 
-	Update Visual C 2010 project files.
+	* src/cff/cffload.c (cff_vstore_load): Read the region and data counts
+	into locals and update the vstore counts immediately after each entry
+	becomes free-able.
 
-	Problem reported by Hin-Tak.
+2021-10-20  Ben Wagner  <bungeman@chromium.org>
 
-	* builds/windows/vc2010/freetype.vcxproj: Add files `ftbdf.c' and
-	`ftcid.c'.
-	Sort entries.
-	* builds/windows/vc2010/freetype.vcxproj.filter: Ditto.
-	Fix members of `FT_MODULE' group.
+	[sfnt] Delay setting gasp ranges and count until computed.
 
-2017-12-30  Werner Lemberg  <wl@gnu.org>
+	Previously, the gasp.numRanges was set and gasp.gaspRanges was
+	allocated and assigned before a possible early exit if the frame could
+	not be entered. It is also possible that the gaspRanges allocation
+	could fail but the numRanges still be set to non-zero. In such cases
+	an error would be returned, but the face would have a gasp in an
+	inconsistent state which may still be accessed.
 
-	* builds/vms/ftconfig.h: Synchronize with unix `ftconfig.in' file.
+	Reported as
+	  https://bugs.chromium.org/p/chromium/issues/detail?id=1261450
 
-2017-12-28  Werner Lemberg  <wl@gnu.org>
+	* src/sfnt/ttload.c (tt_face_load_gasp): Delay setting gasp.numRanges
+	and gasp.gaspRanges until after the ranges are initialized.
 
-	* builds/unix/ftconfig.in: Synchronize with main `ftconfig.h' file.
+2021-10-20  Ben Wagner  <bungeman@chromium.org>
 
-	Reported by Nikolaus.
+	[sfnt] Delay setting names and langTags until computed.
 
-2017-12-27  Werner Lemberg  <wl@gnu.org>
+	Previously, the table->names and table->langTags fields were created
+	pointing to uninitialized memory and an early exit could happen if the
+	frame could not be entered. The caller would then be unable to properly
+	dispose of the memory as the string fields had not been initialized.
 
-	Fix compiler warnings.
+	Reported as
+	  https://bugs.chromium.org/p/chromium/issues/detail?id=1261343
 
-	* src/base/ftbitmap.c (ft_bitmap_assure_buffer): Make `pitch' and
-	`new_pitch' unsigned.
+	* src/sfnt/ttload.c (tt_face_load_name): delay setting table->langTags
+	and table->names until after the memory they will point to is fully
+	initialized.
 
-	* src/base/ftpsprop.c: Include FT_INTERNAL_POSTSCRIPT_PROPS_H.
+2021-10-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2017-12-27  Werner Lemberg  <wl@gnu.org>
+	* tests/issue-1063/main.c: s/PATH_MAX/FILENAME_MAX/.
 
-	Fixes for `make multi'.
+	Closes !97 for Windows by using a standard macro.
 
-	* include/freetype/internal/ftpsprop.h: Use `FT_BASE_CALLBACK'.
-	(ps_property_get): Harmonize declaration with corresponding
-	function typedef.
+2021-10-19  Werner Lemberg  <wl@gnu.org>
 
-	* include/freety[e/internal/fttrace.h: Add `trace_psprops'.
+	[bdf, cid, pfr, winfonts] Improve rejection of other font formats.
 
-	* src/base/ftpsprop.c: Include necessary header files.
-	(FT_COMPONENT): Define.
-	(ps_property_set): Tag with `FT_BASE_CALLBACK_DEF'.
-	(ps_property_get): Tag with `FT_BASE_CALLBACK_DEF'.
-	Harmonize declaration with corresponding function typedef.
+	This is mainly for better diagnostics of malformed fonts.
 
-2017-12-27  Werner Lemberg  <wl@gnu.org>
+	* src/bdf/bdflib.c (_bfd_readstream): Stop font format testing if the first
+	input line is too long or doesn't end with `\r` or `\n`.
 
-	Provide support for intra-module callback functions.
+	* src/cid/cidparse.c (cid_parser_new): Don't handle too short input as an
+	error but as an unknown format.
 
-	This is needed especially for `make multi' with C++.
+	* src/pfr/pfrobjs.c (pfr_face_init): Ditto.
 
-	* include/freetype/config/ftconfig.h (FT_BASE_CALLBACK,
-	FT_BASE_CALLBACK_DEF): New macros.
+	* src/winfonts/winfnt.c (fnt_font_load, fnt_face_get_dll_font): Ditto.
 
-2017-12-25  Ewald Hew  <ewaldhew@gmail.com>
+2021-10-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	Move PostScript drivers' property handlers to `base'.
+	[pcf] Zero out the allocated properties.
 
-	This reduces the amount of duplicated code across PostScript
-	drivers.
+	Fallout reported as
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40033
 
-	* src/cff/cffdrivr.c, src/cid/cidriver.c, src/type1/t1driver.c
-	({cff,cid,t1}_property_{get,set}): Moved to...
-	* include/freetype/internal/ftpsprop.h: ...this new file.
-	(ps_property_{get,set}): New functions to replace moved ones.
+	* src/pcf/pcfread.c (pcf_get_properties): Use FT_NEW_ARRAY and zero
+	out `properties` in case of failure.
 
-	* src/base/ftpsprop.c: New file that implements above functions.
+2021-10-18  Werner Lemberg  <wl@gnu.org>
 
-	* include/freetype/internal/internal.h
-	(FT_INTERNAL_POSTSCRIPT_PROPS_H): New macro.
+	configure: Use string comparison for directory inodes.
 
-	* src/cff/cffdrivr.c, src/cid/cidriver.c, src/type1/t1driver.c:
+	Inode values might be larger than integers supported by the shell.
+
+	Fixes #1105.
+
+2021-10-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/sfnt/ttload.c (tt_face_load_name): NULL-initialize langTag.
+
+	Another attempt to fix fallout reported as
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40024
+
+2021-10-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[bdf] Fix up user properties.
+
+	Fallout reported as
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=40027
+
+	* src/bdf/bdflib.c (_bdf_add_property): Cosmetic NULL.
+	(bdf_create_property): Limit allocations to customary signed
+	FT_Long and NULL-initialize unused storage.
+	(bdf_free_font): Do not free unused storage.
+
+2021-10-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/sfnt/ttload.c (tt_face_load_name): Accounting fix.
+
+	Fallout reported as
+	  https://crbug.com/40024
+
+2021-10-16  Ben Wagner  <bungeman@chromium.org>
+
+	Fix typos in memory macros.
+
+	FT_QNEW_ARRAY and FT_QRENEW_ARRAY were using the non-Q
+	FT_MEM_NEW_ARRAY and FT_MEM_RENEW_ARRAY. Change these to use the Q
+	versions. Also fix the one issue discovered in tt_face_load_name
+	where table->names is created with FT_QNEW_ARRAY but the extra
+	string member is not initialized to NULL.
+
+	* include/freetype/internal/ftmemory.h (FT_Q(RE)NEW_ARRAY):
+	Use FT_MEM_Q(RE)NEW_ARRAY as needed.
+
+	* src/sfnt/ttload.c (tt_face_load_name): Initialize `entry->string`.
+
+2021-10-15  Ben Wagner  <bungeman@chromium.org>
+
+	[truetype] Reload context after re-executing `prep`.
+
+	When a different hinting mode from the current is selected, the `prep` table
+	must be re-executed with the new mode.  After this happens the context must
+	be re-loaded in preparation for the glyph program to be run.
+
+	Fixes #1104.
+
+	* truetype/ttgload.c (tt_loader_init): Add call to `TT_Load_Context`.
+
+2021-10-15  Werner Lemberg  <wl@gnu.org>
+
+	[truetype] Minor documentation improvements.
+
+2021-10-14  Anurag Thakur  <anuthadev@gmail.com>
+
+	Add clang build to linux CI
+
+2021-10-12  Anurag Thakur  <anuthadev@gmail.com>
+
+	CI: Add macOS CI, including a clang build
+
+2021-10-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/cid/cidload.c (parse_fd_array): Protect against trancation.
+
+2021-10-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[type1] Revert to signed size for binary data.
+
+	Recently introduced and reported as
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=39838
+
+	* src/type1/t1load.c (read_binary_data): Reject negative size.
+	(parse_subrs, parse_charstrings): Use customary signed size.
+
+2021-10-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[psaux] Signedness revisions.
+
+	Unsigned indexes are easier to check.
+
+	* src/psaux/cffdecode.c (cff_decoder_parse_charstrings): Updated.
+	* src/psaux/psintrp.c (cf2_interpT2CharString): Ditto.
+	* src/psaux/t1decode.c (t1_decoder_parse_charstrings): Ditto.
+	* src/type1/t1load.c (read_binary_data): Ditto.
+
+2021-10-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[cid] Signedness revisions.
+
+	Unsigned checks are simpler.
+
+	* include/freetype/t1tables.h (CID_FaceInfoRec): Change to unsignd
+	`num_dicts`.
+	* src/cid/cidparse.h (CID_Parser): Change to unsigned `num_dict`.
+
+	* src/cid/cidgload.c (cid_load_glyph): Updated.
+	* src/cid/cidload.c (cid_load_keyword, parse_fd_array,
+	parse_expansion_factor, parse_font_name, cid_read_subrs,
+	cid_face_open): Updated.
+	* src/cid/cidobjs.c (cid_face_done): Updated.
+	* src/cid/cidparse.c (cid_parser_new): Updated.
+
+2021-10-09  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/cid/cidload.c (cid_face_open): Streamline CIDCount check.
+
+2021-10-08  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/cid/cidload.c (cid_face_open): Streamline SubrCount check.
+
+2021-10-08  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/cid/cidgload.c (cid_load_glyph): Fortify incremental loading.
+
+2021-10-08  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Signedness revisions.
+
+	This eliminates explicit casting by switching to unsigned fields.
+	The revisions mostly impact the handling of CID fonts.
+
+	* include/freetype/fttypes.h (FT_Data): Change to unsigned `length`.
+	* include/freetype/t1tables.h (CID_FaceDictRec): Ditto for `sd_bytes`.
+	(CID_FaceInfoRec): Ditto for `gd_bytes` and `gd_bytes`.
+	* include/freetype/internal/tttypes.h (TT_LoaderRec): Ditto for
+	`byte_len`.
+
+	* src/cid/cidgload.c (cid_load_glyph): Updated.
+	* src/cid/cidload.h (cid_get_offset): Update argument.
+	* src/cid/cidload.c (cid_get_offset, cid_read_subrs, cid_face_open):
 	Updated.
-
-	* src/base/Jamfile, src/base/rules.mk (BASE_SRC), src/base/ftbase.c:
+	* src/cff/cffgload.c (cff_get_glyph_data, cff_free_glyph_data):
 	Updated.
+	* src/psaux/psft.c (cf2_getT1SeacComponent): Updated.
+	* src/truetype/ttgload.c (TT_Process_Composite_Glyph,
+	load_truetype_glyph): Updated.
 
-2017-12-20  Werner Lemberg  <wl@gnu.org>
+2021-10-07  Jan Alexander Steffens (heftig)  <jan.steffens@gmail.com>
 
-	Speed up FT_Set_Var_{Design,Blend}_Coordinates if curr == new.
+	meson.build (gen_docs): Use `current_source_dir` instead of `source_root`.
 
-	We exit early if the current design or blend coordinates are
-	identical to the new ones.
+	These two are not equal when FreeType is used as a subproject, such as in
+	`freetype-demos`.  In that case, `source_root` points at the root project,
+	causing the docs build to fail.
 
-	* src/truetype/ttgxvar.c (tt_set_mm_blend, TT_Set_Var_Design):
-	Implement it, returning internal error code -1 if there will be no
-	variation change.
+2021-10-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/type1/t1load.c (t1_set_mm_blend): Ditto.
+	* src/smooth/ftgrays.c (FT_DIV_MOD): Limit the ARM workaround.
 
-	* src/base/ftmm.c (FT_Set_Var_Design_Coordinates,
-	FT_Set_MM_Blend_Coordinates, FT_Set_Var_Blend_Coordinates): Updated.
+2021-10-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2017-12-18  Werner Lemberg  <wl@gnu.org>
+	[builds/unix, builds/vms] Standardize `mmap` failure.
 
-	[sfnt] Fix charmap type 2 iterator (#52646).
+	* builds/unix/ftsystem.c (FT_Stream_Open): Check for MAP_FAILED.
+	* builds/vms/ftsystem.c (FT_Stream_Open): Ditto.
 
-	The subsetted demo font of the report that exhibits the bug has a
-	very unusual type 2 cmap for Unicode(!): It contains only two
-	sub-headers, one for one-byte characters (covering the range 0x20 to
-	0xFA), and a second one for higher byte 0x01 (just for character
-	code U+0131).
+	This should cover https://savannah.nongnu.org/patch/?5909 as well.
 
-	Before this commit, the iterator wasn't able to correctly handle a
-	sub-header for higher byte 0x01.
+2021-10-05  Hugh McMaster  <hugh.mcmaster@outlook.com>
 
-	* src/sfnt/ttcmap.c (tt_cmap2_char_next): Fix character increment
-	for outer loop.
+	autogen.sh: Only copy submodules if building from a git branch.
 
-2017-12-18  Matthias Clasen  <matthias.clasen@gmail.com>
+	`autogen.sh` fails if building from a standard source tarball.  Firstly, git
+	expects to be called in a git repository, then `copy_submodule_files`
+	blindly attempts to copy files.
 
-	[truetype] Fix clamping, minor tracing code beautification.
+	Debian, Ubuntu, Linux Mint, and other derivatives all run `autogen.sh`
+	before compiling to regenerate build files.
 
-	* src/truetype/ttgxvar.c (ft_var_to_normalized): Trace number of
-	design coordinates.
-	Use clamped value.
+	This patch ensures that various git commands are only called and 'dlg' files
+	are only copied if `autogen.sh` is called from a git repository.
 
-2017-12-18  Werner Lemberg  <wl@gnu.org>
+2021-10-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/*/*: Only use `ft_' and `FT_' variants of stdc library stuff.
+	* include/freetype/internal/ftgloadr.h: Add missing header.
 
-2017-12-18  Werner Lemberg  <wl@gnu.org>
+	Noticed by Jouk Jansen.
 
-	* src/truetype/ttgxvar.c (tt_face_vary_cvt): Add size guard (#52688).
+2021-10-05  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2017-12-18  Werner Lemberg  <wl@gnu.org>
+	[pshinter] Additional clean-ups.
 
-	[truetype] Fix previous commit.
+	* src/pshinter/pshalgo.h (psh_hint_table_find_strong_points): Streamline code.
+	* src/pshinter/pshalgo.h (PSH_Glyph): Remove unused fields.
 
-	* src/truetype/ttgload.c (TT_Process_Simple_Glyph): Correctly handle
-	unhinted phantom points, which must be properly scaled.
+2021-10-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2017-12-18  Werner Lemberg  <wl@gnu.org>
+	[pshinter] More convenient direction definition.
 
-	[truetype] Don't apply HVAR and VVAR deltas twice (#52683).
+	It is easier to check directions using flags than integer values.
 
-	* src/truetype/ttgload.c (TT_Process_Simple_Glyph): Always adjust
-	`pp1' to `pp4', except if we have an HVAR and/or VVAR table.
+	* src/pshinter/pshalgo.h (PSH_Dir): Redefine directions.
+	(PSH_PointRec): Use them as an enum type.
 
-	* src/truetype/ttgxvar.c (TT_Vary_Apply_Glyph_Deltas): Handle
-	alternative code branch identically w.r.t. presence of an HVAR
-	and/or VVAR table.
+	* src/pshinter/pshalgo.c (psh_compute_dir): Modify return type.
+	(psh_glyph_init, psh_hint_table_find_strong_points,
+	psh_glyph_find_blue_points): Update users.
 
-2017-12-17  Jonathan Kew  <jfkthame@gmail.com>
+2021-10-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[truetype] Correctly handle variation font phantom points (#52683).
+	[pshinter] Remove unnecessary check.
 
-	* src/truetype/ttgxvar.c (TT_Vary_Apply_Glyph_Deltas): Fix phantom
-	point indices.
+	* src/pshinter/pshalgo.c (psh_hint_table_find_strong_points): Do not
+	check if direction is defined before checking how.
 
-2017-12-17  Jonathan Kew  <jfkthame@gmail.com>
+2021-10-02  AnuthaDev  <anuthadev@gmail.com>
 
-	Fix incorrect advance width scaling (#52683).
+	CI: Hardcode meson version to fix build failure on windows
 
-	* src/base/ftadvance.c (FT_Get_Advances): Always respect the
-	FT_LOAD_NO_SCALE flag if present.
+2021-10-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2017-12-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
+	Additional `FT_MSB` macro definitions.
 
-	* builds/windows/vc2010/freetype.vcxproj: AfterBuild copy.
-	* objs/.gitignore: Ignore almost everything.
+	* include/freetype/internal/ftcalc.h [__DECC,_CRAYC]: Use builtins
+	and intrinsics.
 
-2017-12-11  Werner Lemberg  <wl@gnu.org>
+2021-10-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	Fix compiler warning (#52640).
+	* src/autofit/afhints.c (af_glyph_hints_reload): Decrease casting.
 
-	* src/base/ftbitmap.c (ft_bitmap_assure_buffer): Remove unused
-	variable.
+2021-09-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2017-12-08  Azzuro  <azzuro@team-mediaportal.com>
+	* src/tools/apinames.c: Facilitate OpenVMS linker options.
 
-	* builds/windows/vc2010/freetype.vcxproj: Adjust output directory.
+2021-09-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	This allows builds with different configurations in parallel.
+	* src/winfonts/winfnt.c (FNT_Face_Init): Correct reallocation.
 
-2017-12-08  Werner Lemberg  <wl@gnu.org>
+2021-09-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	Fix `make setup dos', second try (#52622).
+	[builds/unix] Do not use autoconf SIZEOF.
 
-	* builds/detect.mk (dos_setup): Don't use literal `>' character at
-	all.  Mixing the different escaping rules from make, dos, and
-	windows is too fragile.
+	* builds/unix/ftconfig.h.in [FT_USE_AUTOCONF_SIZEOF_TYPES]: Removed.
+	* builds/unix/configure.raw: Remove AC_CHECK_SIZEOF and update.
 
-2017-12-08  Werner Lemberg  <wl@gnu.org>
+	After this commit, autoconf builds will fully rely on <limits.h>
+	rather than falling back on it if AC_CHECK_SIZEOF failed for some
+	reason.  There is a risk that misconfigured cross-compilation might
+	have wrong headers.  Note that Meson and CMake builds always relied on
+	<limits.h> for sizes and availability of integer types.
 
-	[docmaker] Fix code section parsing.
+2021-09-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	Stuff like
+	Propagate sign when reading OFF3.
 
-	  {
-	    <bla>
-	  }
+	Signed 24-bit values are extremely rare.  FreeType only reads them in
+	PFR fonts with bitmap strikes conditionally. They have not been seen
+	in the known fonts.  That is why this bug could never be discovered.
+	`FT_FRAME_OFF3` propagates sign correctly.
 
-	confused the parser, which incorrectly treated `<bla>' as a markup
-	tag.
+	* include/freetype/internal/ftstream.h (FT_PEEK_OFF3, FT_PEEK_OFF3_LE):
+	Propagate sign into 32-bit value.
+	(FT_GET_OFF3, FT_READ_OFF3): Needed fixing but removed as unused.
 
-	* src/tools/docmaker/content.py (ContentProcessor::process_content):
-	Apply `re_markup_tags' only outside of code sections.
+2021-09-25  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2017-12-08  Werner Lemberg  <wl@gnu.org>
+	[bdf] Simplify comment collection or lack thereof.
 
-	New `ftdriver.h' file, covering all driver modules.
+	BDF comments are neither actually collected nor retrieved. There is
+	no need to be fancy with delimiters.
 
-	This reduces redundancy and increases synergy; it also reduces the
-	number of header files.
+	* src/bdf/bdflib.c (_add_bdf_comment): Delimit comments with zeros...
+	(bdf_load_font): ...and do not null-terminate comments additionally.
+	(_bdf_parse_glyphs): Check if comments are kept, which they are not.
+	(_bdf_parse_start): Minor clean up.
 
-	* include/freetype/config/ftheader.h (FT_DRIVER_H): New macro.
-	(FT_AUTOHINTER_H, FT_CFF_DRIVER_H, FT_TRUETYPE_DRIVER_H,
-	FT_PCF_DRIVER_H, FT_TYPE1_DRIVER_H): Make them aliases to
-	FT_DRIVER_H.
+2021-09-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* include/freetype/ftautoh.h, include/freetype/ftcffdrv.h,
-	include/freetype/ftpcfdrv.h, include/freetype/ftt1drv.h,
-	include/freetype/ftttdrv.h: Replaced with...
-	* include/freetype/ftdriver.h: ...this new file.
-	(FT_CFF_HINTING_ADOBE, FT_T1_HINTING_ADOBE): Renamed to...
-	(FT_HINTING_ADOBE): ... this new macro.
-	(FT_CFF_HINTING_FREETYPE, FT_T1_HINTING_FREETYPE): Renamed to...
-	(FT_HINTING_FREETYPE): ... this new macro.
+	Use NULL for pointers only.
 
-	* src/*/*: Updated accordingly.
+	* src/bdf/bdflib.c (*): Code changes.
+	* include/freetype/freetype.h: Comments only.
+	* src/cff/cffload.c, src/cff/cffobjs.c: Ditto.
+	* src/winfonts/winfnt.c: Ditto.
 
-2017-12-08  Werner Lemberg  <wl@gnu.org>
+2021-09-23  Werner Lemberg  <wl@gnu.org>
 
-	Move `ftdriver.h' to `ftdrv.h'.
+	Minor documentation fixes and improvements.
 
-	* include/freetype/internal/ftdriver.h: Renamed to...
-	* include/freetype/internal/ftdrv.h: ... this name.
+2021-09-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* include/freetype/internal/internal.h (FT_INTERNAL_DRIVER_H):
-	Updated.
+	Reference `fopen` in the docs.
 
-2017-12-08  Werner Lemberg  <wl@gnu.org>
+2021-09-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	Fix access to uninitalized memory (#52613).
+	[bdf, pcf] Minor optimization.
 
-	Also reported as
+	* src/pcf/pcfread.c (pcf_load_font): Do not call `FT_MulDiv` for a
+	small job.
+	* src/bdf/bdfdrivr.c (BDF_Face_Init): Ditto.
+	* src/bdf/bdflib.c (_bdf_parse_glyphs): Fix a comment.
 
-	  https://bugs.chromium.org/p/chromium/issues/detail?id=791317
+2021-09-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/base/ftbitmap.c (ft_bitmap_assure_buffer): If increasing the
-	bitmap size needs a larger bitmap buffer, assure that the new memory
-	areas are initialized also.
+	[base] Initialize stream memory earlier.
 
-2017-12-08  Werner Lemberg  <wl@gnu.org>
+	With Windows memory management tracking heap, it is important to use
+	it during the stream opening fallback. In Unix, the argument is
+	unused, but it is better to set it correctly.
 
-	Fix `make setup dos' (#52622).
+	* src/base/ftobjs.c (FT_Stream_New): Set memory before calling
+	`FT_Stream_Open`.
+	* builds/windows/ftsystem.c, builds/unix/ftsystem.c (FT_Stream_Open,
+	ft_close_stream_by_free): Call `ft_alloc` and `ft_free` with proper
+	memory argumment.
 
-	* builds/detect.mk (dos_setup): Properly escape literal `>'
-	character.
+2021-09-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2017-12-07  Werner Lemberg  <wl@gnu.org>
+	[builds/windows] Revert back to `CreateFileA` only.
 
-	Fix C++ compilation.
+	Calling `CreateFileW` without making sure that the patname is really
+	`wchar_t` is a bad idea and can lead to unpredictable overreads. For
+	Windows CE, we impelemnt the missing API.
 
-	* src/psaux/psauxmod.h: Use FT_CALLBACK_TABLE macro where necessary.
+	Fixes #1098 and !76 again.
 
-	* src/smooth/ftsmooth.c (ft_smooth_render_generic): Fix warning.
+	* builds/windows/ftsystem.c (FT_Stream_Open): Call `CreateFileA`.
+	[_WIN32_WCE] (CreateFileA, FileSizeEx): Implement missing interfaces.
 
-2017-12-07  Werner Lemberg  <wl@gnu.org>
+2021-09-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	Fix `make multi'.
+	* src/bdf/bdflib.c (_bdf_parse_{start,glyphs}): Use appropriate scanner.
 
-	* include/freetype/internal/fttrace.h: Remove unused tracing macros.
-	s/pshalgo2/pshalgo/.
-	Add `trace_cffdecode'.
-	* src/pshinter/pshalgo.c (FT_COMPONENT): Updated.
+2021-09-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/cff/cffload.c: Include FT_INTERNAL_POSTSCRIPT_AUX_H.
-	* src/cff/cffobjs.c: Include FT_SERVICE_METRICS_VARIATIONS_H and
-	FT_SERVICE_CFF_TABLE_LOAD_H.
-
-	* src/cid/cidriver.c: Include FT_INTERNAL_POSTSCRIPT_AUX_H.
-
-	* src/psaux/cffdecode.c: Include FT_FREETYPE_H and
-	FT_INTERNAL_DEBUG_H.
-	(FT_COMPONENT): Define.
-	* src/psaux/cffdecode.h: Include FT_INTERNAL_POSTSCRIPT_AUX_H.
-	* src/psaux/psauxmod.h: Include FT_INTERNAL_POSTSCRIPT_AUX_H.
-	Declare `cff_builder_funcs' and `ps_builder_funcs'.
-	* src/psaux/psft.c: Include `psobjs.h' and `cffdecode.h'.
-	* src/psaux/psobjs.c : Include `psauxmod.h'.
-
-2017-12-07  Werner Lemberg  <wl@gnu.org>
-
-	* include/freetype/config/ftheader.h: Some clean-up.
-
-	This commit removes documentation of deprecated macros and does some
-	minor streamlining.
-
-2017-12-06  Werner Lemberg  <wl@gnu.org>
-
-	* builds/symbian/bld.inf: Updated.
-
-2017-12-06  Werner Lemberg  <wl@gnu.org>
-
-	New header file `ftparams.h' that collects all parameter tags.
-
-	* include/freetype/config/ftheader.h (FT_PARAMETER_TAGS_H): New
-	macro.
-	(FT_TRUETYPE_UNPATENTED_H, FT_UNPATENTED_HINTING_H): Define it to
-	`ftparams.h'.
-
-	* include/freetype/ftautoh.h, include/freetype/ftcffdrv.h,
-	include/freetype/ftincrem.h, include/freetype/ftlcdfil.h,
-	include/freetype/ftsnames.h, include/freetype/ftt1drv.h: Include
-	FT_PARAMETER_TAGS_H.
-	Move FT_PARAM_TAG_XXX definitions to...
-	* include/freetype/ftparams.h: ...this new file.
-
-	* include/freetype/ttunpat.h: Remove.  No longer needed.
-
-2017-12-05  Werner Lemberg  <wl@gnu.org>
-
-	Improve tracing messages by using singular and plural forms.
-
-	* src/*/*.c: Implement it.
-
-2017-12-04  Werner Lemberg  <wl@gnu.org>
-
-	[truetype] Allow shared points in `cvar' table (#52532).
-
-	* src/truetype/ttgxvar.c (tt_face_vary_cvt): Implement it by copying
-	and adjusting the corresponding code from
-	`TT_Vary_Apply_Glyph_Deltas'.
-
-2017-11-28  Werner Lemberg  <wl@gnu.org>
-
-	[truetype] Improving tracing of composite glyphs.
-
-	* src/truetype/ttgload.c (TT_Load_Composite_Glyph)
-	[FT_DEBUG_LEVEL_TRACE]: Show composite glyph information.
-
-2017-11-27  Werner Lemberg  <wl@gnu.org>
-
-	[type1] Allow (again) `/Encoding' with >256 elements (#52464).
-
-	In version 2.6.1, this has been disallowed to better reject
-	malformed fonts; however, this restriction was too strong.  This
-	time, we only take the first 256 elements into account, since
-	encoding arrays are always accessed with a 8bit integer, according
-	to the PostScript Language Reference.
-
-	* src/type1/t1load.c (parse_encoding): Implement it.
-
-2017-11-27  Jan Alexander Steffens (heftig)  <jan.steffens@gmail.com>
-
-	Fix last commit (#52522).
-
-	* builds/freetype.mk: Set `FT_OPTION_H' and `FTOPTION_FLAG'
-	properly if we have `ftoption.h' in `BUILD_DIR'.
-
-2017-11-24  Werner Lemberg  <wl@gnu.org>
-
-	[unix] Install a massaged `ftoption.h' file (#51780).
-
-	* builds/unix/configure.raw (ftoption_set, ftoption_unset): New
-	auxiliary functions to construct...
-	(FTOPTION_H_SED): ... this new variable.
-	Apply it as a sed argument while copying `ftoption.h' to the
-	`builds/unix' directory (using `AC_CONFIG_FILES').
-	Simplify code of test that checks cpp's computation of bit length
-	(the test previously created an empty `ftoption.h' file and deleted
-	it immediately afterwards); without this change, it can happen on my
-	GNU/Linux box that `configure's execution of `config.status' doesn't
-	create `ftoption.h' (no idea why this happens).
-
-	* builds/unix/install.mk (install): Install
-	`builds/unix/ftoption.h'.
-
-	* builds/unix/unix-def.in (DISTCLEAN): Updated.
-
-	* builds/unix/.gitignore: Updated.
-
-2017-11-23  Tor Andersson  <tor.andersson@artifex.com>
-
-	Silence unused function warnings (#52465).
-
-	Some static function declarations cause unused function warnings if
-	certain config options are turned off via `ftoption.h'.
-
-	* src/base/ftbase.h, src/base/ftrfork.c, src/sfnt/ttbdf.h,
-	src/truetype/ttgxvar.h: Add #ifdef guards around these sections.
-
-2017-11-22  Ewald Hew  <ewaldhew@gmail.com>
-
-	* src/psaux/psft.c (cf2_setGlyphWidth): Check format before setting.
-
-	Reported as
-
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=4377
-
-2017-11-22  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Fix CFF advance widths. (#52466)
-
-	Glyph advance widths were being written to the new `PS_Decoder' but not
-	saved to the underlying format specific decoder. This caused pure CFF
-	fonts to have bad advance width.
-
-	* include/freetype/internal/psaux.h (PS_Decoder): Change `glyph_width'
-	field to pointer.
-	Remove unused fields.
-	* src/psaux/psobjs.c (ps_decoder_init): Change `glyph_width' from copy
-	to reference.
-	Remove unused.
-	* src/psaux/psft.c (cf2_setGlyphWidth): Update code.
-
-2017-11-15  Vlad Tsyrklevich  <vtsyrklevich@google.com>
-
-	* include/freetype/ftrender.h: Fix `FT_Renderer_RenderFunc' type.
-
-2017-11-14  Nikolaus Waxweiler  <madigens@gmail.com>
-
-	Use Adobe hinting engine for `light' hinting of both CFF and Type 1.
-
-	Since Ewald Hew factored the Adobe hinting engine out of the CFF
-	driver code, we can now use it on Type 1 (and CID) font formats, as
-	both have the same hinting philosophy.
-
-	This change activates the Adobe hinter when in LIGHT mode, and
-	therefore always unless explicitly asking for the auto-hinter.  This
-	makes LIGHT behavior consistent with CFF fonts.  As of this commit,
-	the hinting engine table looks as follows.
-
-	             LIGHT  NORMAL
-	  -------------------------
-	   TrueType  Auto   v40
-	   CFF       Adobe  Adobe
-	   Type 1    Adobe  Adobe
-
-2017-11-10  Yuri Levchenko  <yuri_levchenko@boolat.com>
-
-	* CMakeLists.txt: Add `DISABLE_FORCE_DEBUG_PREFIX' option.
-
-2017-11-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	* src/base/ftobjs.c (FT_Load_Glyph): Relocate condition.
-
-2017-11-06  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	* src/smooth/ftgrays.c (gray_set_cell): Fix uninitialized variables.
-
-2017-11-03  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Fix PostScript interpreter rewinding in Type 1 mode. (#52251)
-
-	The interpreter in Type 1 mode rewinds the charstring after collecting
-	all hints for building the initial hintmap (commit d52dd7f). However,
-	some charstrings use `endchar' in a final subroutine call, rewinding to
-	the start of that subroutine, and only a small section of the actual
-	glyph is drawn.
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString) <cf2_cmdENDCHAR>:
-	Ensure we are on the top level charstring before rewinding.
-
-2017-11-03  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
-
-	[truetype] Add more tricky fonts.
-
-	See the report by Yang Yinsen.
-	https://lists.gnu.org/archive/html/freetype-devel/2017-11/msg00000.html
-
-	* src/truetype/ttobjs.c (trick_names): Add `DFGothic-EB',
-	`DFGyoSho-Lt', `DFHSGothic-W5', `DFHSMincho-W3' and `DFHSMincho-W7'.
-	(tt_check_trickyness_sfnt_ids): Add checksums for DFGothic-EB,
-	DFGyoSho-Lt, DFHSGothic-W5, DFHSMincho-W3 and DFHSMincho-W7.  Also
-	add checksums for DLCLiShu and DLCHayBold which their family names
-	were already listed but their checksums were previously unknown.
-
-2017-11-01  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[smooth] Fix complex rendering at high ppem.
-
-	We used to split large glyphs into horizontal bands and continue
-	bisecting them still horizontally if that was not enough.  This is
-	guaranteed to fail when a single scanline cannot fit into the
-	rendering memory pool.  Now we bisect the bands vertically so that
-	the smallest unit is a column of the band height, which is guranteed
-	to fit into memory.
-
-	* src/smooth/ftgrays.c (gray_convert_glyph): Implement it.
-
-2017-10-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[smooth] Improve complex rendering at high ppem.
-
-	At large sizes almost but not exactly horizontal segments can quickly
-	drain the rendering pool. This patch at least avoids filling the pool
-	with trivial cells. Beyond this, we can only increase the pool size.
-
-	Reported, analyzed, and tested by Colin Fahey.
-
-	* src/smooth/ftgrays.c (gray_set_cell): Do not record trivial cells.
-
-2017-10-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[base] Improve tracing in FT_Load_Glyph, FT_*_Size.
-
-	* src/base/ftobjs.c (FT_Load_Glyph): Tag tracing messages with
-	function name, glyph index, and load flags.
-	(FT_Select_Metrics, FT_Request_Metrics): Remove all tracing.
-	(FT_Select_Size, FT_Request_Size): Improve tracing.
-
-2017-10-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[base] Improve tracing in FT_Render_Glyph.
-
-	* src/base/ftobjs.c (FT_Render_Glyph_Internal): Add total coverage
-	calculations and downgrade Netpbm dump to bitmap:7.
-
-2017-10-15  Ewald Hew  <ewaldhew@gmail.com>
-
-	[cff] Fix segfault on missing `psaux' (#52218)
-
-	* src/cff/cffload.c (cff_done_blend): Add a check for possible nullptr.
-
-	* modules.cfg: Update dependency list.
-
-2017-10-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[base, cff] Fix MSVC warnings.
-
-	* src/base/ftobjs.c (FT_New_Library): C4702: unreachable code.
-	(ft_glyphslot_preset_bitmap): C4244: possible loss of data.
-	* src/cff/cffload.c (cff_blend_doBlend): C4244: possible loss of data.
-	Turn `sum' into unsigned.
-
-2017-10-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[base] Netpbm image tracing.
-
-	* src/base/ftobjs.c (FT_Load_Glyph): Trace bitmap size.
-	(FT_Render_Glyph_Internal): Trace bitmap in Netpbm format.
-
-	* src/smooth/ftgrays.c (gray_sweep): Sweep remnants of span tracing.
-
-2017-10-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	* builds/windows/ftdebug.c (FT_Message): Print to stderr.
-	* builds/wince/ftdebug.c (FT_Message): Ditto.
-
-2017-10-14  Behdad Esfahbod  <behdad@behdad.org>
-
-	[afshaper] Delay creating `hb_set' objects until needed.
-
-	In runs on Noto Naskh Arabic, this results in 89 sets created
-	instead of 340 before.  Makes auto-hinter setup with HarfBuzz
-	enabled 20% to 30% faster.
-
-	* src/autofit/afshaper.c (af_shaper_get_coverage): Implement it.
-
-2017-10-12  Ewald Hew  <ewaldhew@gmail.com>
-
-	[type1, cid] Add hinting engine switch.
-
-	Implement property service in `type1' and `cid' drivers to allow
-	switching between FreeType or Adobe hinting engine when both are
-	available.
-
-	* src/cid/cidriver.c (cid_property_{set,get}, cid_services),
-	src/type1/t1driver.c (t1_property_{set,get}, t1_services): Add
-	Properties service.
-
-	* src/cid/cidobjs.c (cid_driver_init), src/type1/t1objs.c
-	(T1_Driver_Init): Add default property values.
-
-2017-10-12  Ewald Hew  <ewaldhew@gmail.com>
-
-	Add T1_CONFIG_OPTION_OLD_ENGINE configuration option.
-
-	This controls whether the old Type 1 engine gets compiled into FreeType.
-	It is disabled by default.
-
-	* devel/ftoption.h, include/freetype/config/ftoption.h
-	(T1_CONFIG_OPTION_OLD_ENGINE): New macro.
-
-	* include/freetype/internal/psaux.h (PS_Decoder): Remove unused field.
-	* include/freetype/internal/psaux.h, src/cid/cidgload.c
-	(cid_load_glyph), src/psaux/psauxmod.c, src/psaux/psobjs.c
-	(ps_builder_add_point), src/psaux/t1decode.c
-	(t1_lookup_glyph_by_stdcharcode, t1_decoder_parse_glyph,
-	t1operator_seac, t1_decoder_parse_charstrings), src/psaux/t1decode.h,
-	src/type1/t1gload.c (T1_Parse_Glyph_And_Get_Char_String): Surround
-	relevant code with macro.
-	Minor code changes.
-
-2017-10-12  Ewald Hew  <ewaldhew@gmail.com>
-
-	Extract width parsing from Type 1 parser.
-
-	Duplicate the fast advance width calculations from the old parser.
-	This is to facilitate adding options for compiling out the old parser.
-
-	* src/psaux/t1decode.{c,h} (t1_decoder_parse_metrics): New function.
-	* include/freetype/internal/psaux.h (T1_Decoder_Funcs): New entry
-	`parse_metrics'.
-	* src/psaux/psauxmod.c: Set the new entry.
-
-	* src/type1/t1gload.c (T1_Parse_Glyph_And_Get_Char_String),
-	src/cid/cidgload.c (cid_load_glyph): Separate
-	conditional for selecting engine.
-
-2017-10-09  Werner Lemberg  <wl@gnu.org>
-
-	* src/base/ftoutln.c (FT_Outline_Translate): Fix integer overflow.
-
-	Reported as
-
-	  https://bugs.chromium.org/p/chromium/issues/detail?id=772775
-
-2017-10-08  Werner Lemberg  <wl@gnu.org>
-
-	* src/base/ftobjs.c (ft_glyphslot_preset_bitmap): Integer overflows.
-
-	Reported as
-
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=3579
-
-2017-10-07  Werner Lemberg  <wl@gnu.org>
-
-	[sfnt] Adjust behaviour of PS font names for variation fonts.
-
-	* src/sfnt/sfdriver.c (sfnt_get_var_ps_name): Use a named instance's
-	PS name only if no variation is applied.
-
-2017-10-07  Werner Lemberg  <wl@gnu.org>
-
-	[cff, truetype] Adjust behaviour of named instances.
-
-	This commit completely separates the interaction between named
-	instances and variation functions.  In particular, resetting the
-	variation returns to the current named instance (if set) and not to
-	the base font.
-
-	As a side effect, variation functions no longer change the named
-	instance index.
-
-	* src/cff/cffobjs.c (cff_face_init): Use MM service's `set_instance'
-	function.
-	Also apply `MVAR' table to named instances.
-
-	* src/truetype/ttgxvar.c (TT_Get_MM_Var): Add cast.
-	(tt_set_mm_blend): No longer check whether requested variation
-	coincides with a named instance.
-	(TT_Set_Var_Design): Use current named instance for default
-	coordinates.
-	* src/truetype/ttobjs.c (tt_face_init): Use `TT_Set_Named_Instance'.
-
-2017-10-07  Werner Lemberg  <wl@gnu.org>
-
-	Make `FT_Set_Named_Instance' work.
-
-	* src/cff/cffdrivr.c (cff_set_instance): New function.
-	(cff_service_multi_masters): Register it.
-
-	* src/truetype/ttgxvar.c (TT_Set_Named_Instance): New function.
-	* src/truetype/ttgxvar.h: Updated.
-	* src/truetype/ttdriver.c (tt_service_gx_multi_masters): Register
-	it.
-
-	* src/type1/t1load.c (T1_Reset_MM_Blend): New function.
-	* src/type1/t1load.h: Updated.
-	* src/type1/t1driver.c (t1_service_multi_masters): Register it.
-
-2017-10-07  Werner Lemberg  <wl@gnu.org>
-
-	Make `FT_FACE_FLAG_VARIATION' work.
-
-	* include/freetype/internal/tttypes.h (TT_Face): Remove
-	`is_default_instance'; this can be replaced with a combination of
-	`FT_IS_VARIATION' and `FT_IS_INSTANCE'.
-
-	* src/cff/cffdrivr.c (cff_get_advances): Updated.
-
-	* src/sfnt/sfdriver.c (sfnt_get_ps_name), src/sfnt/sfobjs.c
-	(sfnt_init_face): Updated.
-
-	* src/truetype/ttdriver.c (tt_get_advances), src/truetype/ttgload.c
-	(TT_Process_Simple_Glyph, load_truetype_glyph, IS_DEFAULT_INSTANCE),
-	src/truetype/ttgxvar.c (tt_set_mm_blend): Updated.
-	* src/truetype/ttgxvar.c (TT_Set_MM_Blend, TT_Set_Var_Design):
-	Handle `FT_FACE_FLAG_VARIATION'.
-
-	* src/type1/t1load.c (T1_Set_MM_Blend, T1_Set_MM_Design): Handle
-	`FT_FACE_FLAG_VARIATION'.
-
-2017-10-07  Werner Lemberg  <wl@gnu.org>
-
-	New function `FT_Set_Named_Instance'.
-
-	No effect yet.
-
-	* src/base/ftmm.c (FT_Set_Named_Instance): New function.
-
-	* include/freetype/ftmm.h: Updated.
-
-2017-10-07  Werner Lemberg  <wl@gnu.org>
-
-	Add macros for checking whether a font variation is active.
-
-	* include/freetype/freetype.h (FT_FACE_FLAG_VARIATION,
-	FT_IS_VARIATION): New macros.
-	No effect yet.
-
-2017-10-07  Werner Lemberg  <wl@gnu.org>
-
-	Add framework for setting named instance in MM service.
-
-	* include/freetype/internal/services/svmm.h (FT_Set_Instance_Func):
-	New function typedef.
-	(MultiMasters): Add `set_instance' member.
-	(FT_DEFINE_SERVICE_MULTIMASTERSREC): Updated.
-
-	* src/cff/cffdrivr.c (cff_service_multi_masters),
-	src/truetype/ttdriver (tt_service_gx_multi_masters),
-	src/type1/t1driver.c (t1_service_multi_masters): Updated.
-
-2017-10-07  Werner Lemberg  <wl@gnu.org>
-
-	[type1] Minor code shuffling.
-
-	* src/type1/t1load.c (T1_Set_MM_Blend): Make it a wrapper of...
-	(t1_set_mm_blend): ...this new function.
-	(T1_Set_MM_Design): Use `t1_set_mm_blend'.
-
-2017-10-05  Werner Lemberg  <wl@gnu.org>
-
-	* src/base/ftobjs.c (ft_glyphslot_preset_bitmap): Fix integer
-	overflow.
-
-	Reported as
-
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=3539
-
-2017-10-05  Werner Lemberg  <wl@gnu.org>
-
-	Fix compiler warnings.
-
-	* src/cff/cffdrivr.c (cff_ps_get_font_extra): Avoid code that relies
-	on numeric overflow.
-	Add cast.
-
-	* src/smooth/ftsmooth.c (ft_smooth_render_generic): Fix variable
-	types, add cast.
-
-2017-10-04  John Tytgat  <John.Tytgat@esko.com>
-
-	[cff] Add support for `FSType'.
-
-	* include/freetype/internal/cfftypes.h (CFF_FontRec): Add
-	`font_extra' entry.
-
-	* src/cff/cffdrivr.c (cff_ps_get_font_extra): New function to
-	retrieve FSType info from the embedded PostScript data.
-	(cff_service_ps_info): Register function.
-
-	* src/cff/cffload.c (cff_font_done): Free `font_extra'.
-
-2017-09-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	Signedness fixes in bitmap presetting.
-
-	Reported as
-
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=3514.
-
-	* src/raster/ftrend1.c (ft_raster1_render): Exlicitly signed height.
-	* src/smooth/ftsmooth.c (ft_smooth_render_generic): Ditto.
-	* src/base/ftobjs.c (ft_glyphslot_preset_bitmap): Explicitly unsigned
-	subtraction.
-
-2017-09-29  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	Bitmap metrics presetting [2/2].
-
-	* src/base/ftobjs.c (FT_Load_Glyph): Preset the bitmap metrics when
-	appropriate but `FT_Render_Glyph' is not called.
-	* include/freetype/freetype.h (FT_GlyphSlotRec): Document the change.
-
-2017-09-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	[smooth, raster] Miscellaneous cleanups.
-
-	* src/raster/ftrend1.c (ft_raster1_render): Clean up the exit.
-	* src/smooth/ftsmooth.c (ft_smooth_render_generic): Reduce
-	translations and clean up the exit.
-	(ft_smooth_render_lcd, ft_smooth_render_lcd): Remove unused `error'.
-
-2017-09-28  Ben Wagner  <bungeman@google.com>
-
-	[truetype] Really, really fix #52082.
-
-	* src/truetype/ttinterp.c (Ins_MDRP): Correct conditional.
-
-2017-09-28  Werner Lemberg  <wl@gnu.org>
-
-	* src/psaux/psintrp.c (cf2_doStems): Fix integer overflow.
-
-	Reported as
-
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=3510
-
-2017-09-28  Ewald Hew  <ewaldhew@gmail.com>
-
-	* src/cid/cidgload.c (cid_slot_load_glyph): Fix memory leak.
-
-	Reported as
-
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=3489
-
-2017-09-28  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	Bitmap metrics presetting [1/2].
-
-	This mainly just extracts the code for presetting the bitmap metrics
-	from the monochrome, grayscale, and LCD renderers into a separate
-	function.
-
-	* src/base/ftobjs.c (ft_glyphslot_preset_bitmap): New function that
-	calculates prospective bitmap metrics for the given rendering mode.
-	* include/freetype/internal/ftobjs.h (ft_glyphslot_preset_bitmap):
-	Declare it.
-
-	* src/base/ftlcdfil.c (ft_lcd_padding): New helper function that adds
-	padding to CBox taking into account pecularities of LCD rendering.
-	* include/freetype/ftlcdfil.h (ft_lcd_padding): Declare it.
-
-	* src/raster/ftrend1.c (ft_raster1_render): Reworked to use
-	`ft_glyphslot_preset_bitmap'.
-	* src/smooth/ftsmooth.c (ft_smooth_render_generic): Ditto.
-	(ft_smooth_render_lcd, ft_smooth_render_lcd): The pixel_mode setting
-	is moved to `ft_glyphslot_preset_bitmap'.
-
-2017-09-28  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Fix compiler warning.
-
-	* src/psaux/pshints.c (cf2_hintmap_dump): Add switch for tracing
-	code.
-
-2017-09-27  Werner Lemberg  <wl@gnu.org>
-
-	* src/sfnt/ttload.c (tt_face_load_font_dir): Fix compiler warning.
-
-2017-09-25  Werner Lemberg  <wl@gnu.org>
-
-	[psaux] Fix compiler warnings.
-
-	* src/psaux/psft.c (cf2_initLocalRegionBuffer): Remove redundant
-	test.
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString)
-	<cf2_escCALLOTHERSUBR>: Add casts.
-
-	* src/psaux/psobjs.c (ps_decoder_init): Add cast.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Minor fixes.
-
-	* include/freetype/internal/psaux.h, src/psaux/psobjs.{c,h}:
-	Rearrange `ps_builder_init' arguments to conventional order.
-
-	* src/psaux/psft.c (cf2_decoder_parse_charstrings): Add a check and
-	notice for `SubFont' in Type 1 mode.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Move `psdecode' into `psobjs'.
-
-	As the former only contains a single procedure, move it into
-	`psobjs' for simplicity.  Also change the parameter order to the
-	conventional one.
-
-	* src/psaux/psdecode.c (ps_decoder_init): Moved to...
-	* src/psaux/psobjs.c: ...Here.
-	* src/psaux/psdecode.h, src/psaux/psobjs.h: Ditto.
-
-	* include/freetype/internal/psaux.h (PSAux_ServiceRec): Update
-	`ps_decoder_init' function signature.
-
-	* src/cff/cffgload.c, src/cid/cidgload.c, src/type1/t1gload.c:
-	Update calls.
-
-	* src/psaux/psaux.c, src/psaux/psauxmod.c: Update includes.
-
-	* src/psaux/Jamfile (_sources), src/psaux/rules.mk (PSAUX_DRV_SRC):
-	Update file references.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Fix Type 1 hinting.
-
-	Type 1 hinting breaks sometimes when mid-charstring hints should
-	have been in the initial hintmap.  This fix adds a preprocessing
-	pass that reads all hints and builds the correct initial hintmap
-	first, before proceeding to build the glyph outline.
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString): New
-	`initial_map_ready' boolean flag.
-	Ignore outline commands and hint changes on first pass.
-	<cf2_cmdENDCHAR>: Add section to build hintmap and rewind.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Add tracing for hints.
-
-	* src/psaux/pshints.c (cf2_hintmap_dump): New function.
-	(cf2_hintmap_insertHint): Trace incoming and inserted hints.
-	(cf2_hintmap_build): Dump hintmap before and after hint adjustment.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Minor fixes.
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString): Fix check for pop
-	results.
-	s/font->decoder/decoder/ where necessary.
-	<cf2_cmdHSTEM, cf2_cmdVSTEM, cf2_escHSTEM3, cf2_escVSTEM3>: Use
-	offset parameter in `cf2_doStems' instead of doing correction for
-	left-sidebearing.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[cid] Use the new engine.
-
-	* src/cid/cidgload.c: Update includes.
-	(cid_load_glyph, cid_slot_load_glyph): Implement changes to glyph
-	loading code as with `type1' module.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[cid] Add Adobe engine configuration.
-
-	This is similar to what was done in the `type1' module.
-
-	* src/cid/cidriver.c (t1cid_driver_class): Update declaration.
-	* src/cid/cidobjs.c: Include FT_TYPE1_DRIVER_H.
-	(cid_driver_init): Update code.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Change subfont synthesis for CID fonts.
-
-	Change `t1_make_subfont' to take in the Private dict record as an
-	argument.  This is because Type 1 and CID font records in FreeType
-	have this in different places.
-
-	* src/psaux/psobjs.c (t1_make_subfont): Change `T1_Face' to
-	`FT_Face' so that CID is also accepted.
-	Take `PS_Private' as an argument and let caller figure out where the
-	Private dict actually is.
-	Update references.
-
-	* include/freetype/internal/psaux.h, src/psaux/psobjs.h: Update
-	declaration.
-
-	* src/type1/t1gload.c (T1_Parse_Glyph_And_Get_Char_String): Update
-	call.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[type1] Switch to Adobe engine.
-
-	* src/type1/t1objs.c (T1_Driver_Init): Set default to Adobe engine.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Extend Adobe interpreter (seac).
-
-	This concludes the changes needed to add Type 1 support.
-
-	* src/psaux/psintrp.c: Update includes.
-	(cf2_interpT2CharString) <cf2_escSEAC>: Implement this similarly to
-	implied seac for CFF.
-
-	* src/psaux/t1decode.c (t1_lookup_glyph_by_stdcharcode_ps): New
-	function to look up the glyph index.
-
-	* src/psaux/psft.c (cf2_getT1SeacComponent,
-	cf2_freeT1SeacComponent): New functions to get the charstrings for
-	seac components.
-
-	* src/psaux/t1decode.h, src/psaux/psft.h: Update declarations.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Extend Adobe interpreter (flex in callothersubr).
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString)
-	<cf2_escCALLOTHERSUBR>: Fix Flex feature handling (OtherSubrs 0, 1,
-	2).
-	<cf2_cmdRMOVETO>: Do not actually move the `glyphPath' while doing
-	flex.  This is to avoid closing the current contour.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Extend Adobe interpreter (callothersubr).
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString)
-	<cf2_escCALLOTHERSUBR>: Copy code from
-	`t1_decoder_parse_charstrings' (in `t1decode.c').
-	OtherSubr 3 (change hints) should reset the hintmask, so that the
-	new hints are applied.
-	Fix function calls and stack access.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Extend Adobe interpreter (pop).
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString): Change how unhandled
-	OtherSubr results are stored.  Implement the PostScript stack using
-	an array.
-	<cf2_escPOP>: Ensure that the stack is not cleared after getting
-	`OtherSubr' results.
-	Fix stack access.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Extend Adobe interpreter (callsubr).
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString) <cf2_cmdCALLSUBR>:
-	Type 1 mode.
-
-	* src/psaux/psft.c (cf2_initLocalRegionBuffer): Add Type 1 mode.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Extend Adobe interpreter (div, four-byte numbers).
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString) <cf2_escDIV>: Add
-	Type 1 mode.  Type 1 requires large integers to be followed by
-	`div'; cf. `Adobe Type 1 Font Format', section 6.2.
-	<op == 255>: Push Type 1 four-byte numbers as `Int' always.  This is
-	to ensure `div' and `callsubr' get values they can use.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Extend Adobe interpreter (hints).
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString) <cf2_cmdHSTEM,
-	cf2_cmdVSTEM>: Add correction for left sidebearing in Type 1 mode.
-	Allow adding hints mid-charstring.
-	<cf2_escVSTEM3, cf2_escHSTEM3>: Translate into equivalent commands
-	for three normal stem hints.  This requires some recalculation of
-	stem positions.
-	Correction for left sidebearing.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Extend Adobe interpreter (hsbw, sbw).
-
-	* src/psaux/psintrp.c (cf2_doStems): `hsbw' or `sbw' must be the
-	first operation in a Type 1 charstring.
-	(cf2_interpT2CharString): Remove unused variables.
-	<cf2_cmdHMOVETO, cf2_cmdVMOVETO, cf2_cmdRMOVETO>: `hsbw' or `sbw'
-	must be the first operation in a Type 1 charstring.
-	<cf2_cmdHSBW, cf2_escSBW>: Fix data access and add correction for
-	left sidebearing.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Extend Adobe interpreter (setcurrentpoint).
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString)
-	<cf2_escSETCURRENTPT>: Fix stack access.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Extend Adobe interpreter (closepath).
-
-	* src/psaux/psintrp.c (cf2_interpT2CharString) <c2f_cmdCLOSEPATH>:
-	Use the right builder function.  We can use the `haveWidth' boolean
-	already present, instead of implementing `parse_state'.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Add Type 1 operations to Adobe CFF interpreter.
-
-	The following Type 1 specific ops have been added (copied from
-	`t1decode'):
-
-	  closepath
-	  vstem3
-	  hstem3
-	  seac
-	  sbw
-	  callothersubr
-	  pop
-	  setcurrentpoint
-	  hsbw
-
-	The following require a Type 1 mode, because of differences in
-	specification:
-
-	  hstem
-	  vstem
-	  vmoveto
-	  callsubr
-	  div
-	  rmoveto
-	  hmoveto
-	  Numbers
-
-	The subsequent commits will implement these changes and adapt
-	accesses of data and objects to the new interpreter.
-
-	NOTE: Will not compile in the meantime!
-
-	* src/psaux/psintrp.c: Add opcodes to enum.
-	(cf2_interpT2CharString): Copy relevant code over from
-	`t1_decoder_parse_charstrings' (in `t1decode.c').
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[type1] Fixes for rendering.
-
-	The Type 1 advance width calculation passes null for glyph slot,
-	etc, which can cause null pointer access in the new interpreter.
-	Fall back to the old one for now.
-
-	Fix the large glyph retry code and ensure hinting and scaling flags
-	are set properly.
-
-	* src/type1/t1gload.c (T1_Parse_Glyph_And_Get_Char_String): Add a
-	check for metrics_only.
-	Set the `force_scaling' flag.
-	(T1_Parse_Glyph): Updated.
-	(T1_Load_Glyph): Add `hinting' and `scaled' flags.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Add missing objects (2/2).
-
-	Synthesize a `SubFont' object for Type 1 fonts.  This is used in the
-	interpreter to access Private dict data, which are stored in
-	different places for Type 1 and CFF.  This allows the same data to
-	be used in either mode.
-
-	* src/psaux/psobjs.c (t1_make_subfont): New procedure to copy
-	required values to a dummy `CFF_SubFont' object.  This is similar to
-	`cff_make_private_dict'.
-	* src/psaux/psobjs.h: Add the new declaration.
-
-	* include/freetype/internal/psaux.h, src/psaux/psauxmod.c: Ditto.
-	Add this to the PSAux Service for future use with CID fonts.
-
-	* src/type1/t1gload.c: Include FT_INTERNAL_CFF_TYPES_H.
-	(T1_Parse_Glyph_And_Get_Char_String): Add the call.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Add missing objects for Type 1 (1/2).
-
-	Move `CF2_Font' instance to `PS_Decoder'.  This is the context for
-	the interpreter and since it is currently stored in `CFF_Font', is
-	unavailable in Type 1 mode.
-
-	* include/freetype/internal/psaux.h (T1_Decoder, PS_Decoder): New
-	`cf2_instance' field.
-
-	* src/psaux/psdecode.c (ps_decoder_init): Copy `cf2_instance' to
-	`PS_Decoder'.
-
-	* src/psaux/t1decode.c (t1_decoder_done): Add finalization code.
-
-	* src/psaux/psft.c (cf2_decoder_parse_charstrings): Update accesses.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	Allow `type1' module to use the Adobe engine.
-
-	Add the callback and some conditionals to switch between the two
-	engines.
-
-	* include/freetype/internal/psaux.h (T1_Decoder_FuncsRec): Change
-	function declarations.
-	* src/psaux/psauxmod.c (T1_Decoder_FuncsRec): Register the
-	callbacks.
-
-	* src/psaux/psobjs.c (ps_builder_add_point): Add conditionals for
-	number conversion.
-
-	* src/type1/t1gload.c (T1_Parse_Glyph_And_Get_Char_String): Add code
-	to choose which renderer to use.
-
-	* src/cid/cidgload.c (cid_load_glyph): Update call.
-	* src/base/ftobjs.c, src/psaux/psobjs.c, src/type1/t1gload.c: Update
-	includes.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[type1] Add Adobe engine configuration.
-
-	Use the previously changed PS_Driver in type1 module to store
-	hinting engine configuration.
-
-	* include/freetype/ftt1drv.h: New file.
-	Duplicate and rename config options from CFF.
-	* include/freetype/config/ftheader.h (FT_TYPE1_DRIVER_H): New macro.
-
-	* src/type1/t1driver.c (t1_driver_class): Update declaration.
-	* src/type1/t1objs.c: Include FT_TYPE1_DRIVER_H.
-	(T1_Driver_Init): Update code.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[cff] Move and rename `CFF_Driver'.
-
-	This is so that we can use the same hinting engine parameters for
-	Type 1.
-
-	* include/freetype/internal/cffotypes.h (CFF_Driver): Rename and
-	move to...
-	* include/freetype/internal/psaux.h (PS_Driver): ...here.
-
-	* src/cff/cffdrivr.c, src/cff/cffgload.c, src/cff/cffload.c,
-	src/cff/cffobjs.c, src/cff/cffobjs.h, src/psaux/psft.c,
-	src/psaux/psobjs.c: Update references.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux, type1] Reorganize object fields.
-
-	Make some fields more generic, so that we can access them the same
-	way regardless of Type 1 or CFF.
-
-	* include/freetype/internal/psaux.h (PS_Builder): Change `TT_Face'
-	to `FT_Face'.
-	Remove unused fields.
-
-	* src/psaux/psft.c: Update all accesses of `PS_Builder.face'.
-	Add some asserts to guard against casting `T1_Face' as `TT_Face'.
-
-	* src/type1/t1objs.h (T1_GlyphSlot): Reorder fields to follow
-	`CFF_GlyphSlot', so that we can pretend they are the same in the
-	interpreter.
-
-	* src/psaux/psobjs.c (ps_builder_init, ps_builder_add_point):
-	Updated with above changes.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Prepare for Type 1 mode.
-
-	Add some checks for Type 1 data passing through.
-
-	* src/psaux/psfont.h (CF2_Font): Add `isT1' flag.
-	* src/psaux/psfont.c (cf2_font_setup): Skip the variations and blend
-	code which is not applicable for Type 1.
-
-	* src/psaux/psft.c (cf2_decoder_parse_charstrings): Avoid accessing
-	`decoder->cff' in Type 1 mode.
-	Copy `is_t1' flag to `CF2_Font'.
-
-2017-09-25  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux, cff] Use the new objects.
-
-	* include/freetype/internal/psaux.h, src/psaux/psauxmod.c: Fix
-	switching between new and old engines.
-
-	* src/cff/cffgload.c, src/cff/cffparse.c: Update calls.
-
-	* src/psaux/psblues.c, src/psaux/psfont.c, src/psaux/psfont.h,
-	src/psaux/psft.c, src/psaux/psft.h, src/psaux/psintrp.c: Update all
-	to use new objects.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Objects for new interpreter (part 2).
-
-	Make the new objects copy over values.  They are essentially wrapper
-	types for the different decoders/builders.
-
-	* include/freetype/internal/psaux.h: Update declarations.
-	(PS_Builder): Add `is_t1' flag.
-	(PS_Decoder_{Get,Free}_Glyph_Callback): Renamed to...
-	(CFF_Decoder_{Get,Free}_Glyph_Callback: ... this.
-	(PS_Decoder): Updated.
-	Add `t1_parse_callback' member.
-	(PSAux_ServiceRec): Add `ps_decoder_init' member.
-
-	* src/psaux/psdecode.h, src/psaux/psobjs.h: Update declarations.
-
-	* src/psaux/psdecode.c, src/psaux/psobjs.c: Implement copy with two
-	modes.
-
-	* src/psaux/psauxmod.c: Add builder and decoder functions to `PSAux'
-	service.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Add objects for new interpreter.
-
-	Introduce `PS_Decoder' and `PS_Builder' which include all fields
-	from either Type 1 or CFF decoders/builders.
-
-	* include/freetype/internal/psaux.h (PS_Builder, PS_Decoder): New
-	structs.
-
-	* src/psaux/psobjs.c, src/psaux/psobjs.h: Add `PS_Builder'
-	functions.
-
-	* src/psaux/psdecode.c, src/psaux/psdecode.h: New files to hold
-	`PS_Decoder' initialization functions.
-
-	* src/psaux/psaux.c, src/psaux/Jamfile (_sources),
-	src/psaux/rules.mk (PSAUX_DRV_SRC): Updated.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Rename files.
-
-	Replace the `cf2' file name prefix with `ps' as the Adobe engine
-	will be used for both PostScript Types 1 and 2 (CFF) instead of just
-	CFF.
-
-	s/cf2/ps/ for all following.
-
-	* src/psaux/cf2*: Rename files.
-	* src/psaux/*: Update includes.
-
-	* src/psaux/Jamfile (_sources), src/psaux/rules.mk (PSAUX_DRC_SRC,
-	PSAUX_DRV_H): Update file references.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux] Minor fix.
-
-	Use `MultiMasters' service in `psaux' instead of a call to `cff'.
-	The project builds if CFF_CONFIG_OPTION_OLD_ENGINE is not defined.
-
-	* src/psaux/cf2ft.c: Update includes.
-	(cf2_getNormalizedVector): Use `mm->get_var_blend' instead of
-	`cff_get_var_blend'.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux, cff] Move `cff_random' into `psaux' service.
-
-	NOTE: Does not compile!
-
-	Minor fix to allow both `cff' and `psaux' to use `cff_random'.
-
-	* src/cff/cffload.c (cff_random): Move to...
-	* src/psaux/psobjs.c: Here.
-	* src/cff/cffload.h: Move corresponding declaration to
-	`src/psaux/psobjs.h'.
-
-	* include/freetype/internal/psaux.h (PSAux_ServiceRec): Register the
-	function here...
-	* src/psaux/psauxmod.c: And here.
-
-	* src/cff/cffload.c, src/psaux/cf2intrp.c: Update code.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[cff] Move struct declarations to `freetype/internal'.
-
-	NOTE: Does not compile!
-
-	This is so that the CFF functions moved to `psaux' can access the
-	same structs that they need.
-
-	* src/cff/cfftypes.h: Moved to...
-	* include/freetype/internal/cfftypes.h: ...Here.
-
-	* src/cff/cffobjs.h: Moved the struct declarations to...
-	* include/freetype/internal/cffotypes.h: ... this new file.
-
-	* include/freetype/internal/internal.h (FT_INTERNAL_CFF_TYPES_H,
-	FT_INTERNAL_CFF_OBJECT_TYPES_H): New macros.
-
-	* src/cff/cffcmap.h, src/cff/cffdrivr.c, src/cff/cffgload.c,
-	src/cff/cffgload.h, src/cff/cffload.h, src/cff/cffobjs.c,
-	src/cff/cffobjs.h, src/cff/cffparse.h, src/psaux/psobjs.h,
-	include/freetype/internal/psaux.h,
-	include/freetype/internal/services/svcfftl.h: Update includes.
-
-	* src/cff/rules.mk (CFF_DRV_H): Updated.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux, cff] Add new service for inter-module calls.
-
-	NOTE: Does not compile!
-
-	This is to allow CFF functions moved to `psaux' to call functions
-	declared in `src/cff/cffload.h'.
-
-	* include/freetype/internal/services/svcfftl.h: New file, setting up
-	a `CFFLoad' service.
-
-	* include/freetype/internal/ftserv.h (FT_DEFINE_SERVICEDESCREC10,
-	FT_DEFINE_SERVICEDESCREC): New macros.
-	(FT_SERVICE_CFF_TABLE_LOAD_H): New macro.
-
-	* src/cff/cffdrivr.c, src/cff/cffpic.h: Register the new service.
-
-	* src/cff/cfftypes.h (CFF_FontRec), src/psaux/cf2font.h
-	(CF2_FontRec): Add service interface.
-
-	* src/cff/cffobjs.c, src/psaux/cf2font.c, src/psaux/cf2ft.c,
-	src/psaux/cf2intrp.c, src/psaux/cffdecode.c: Use the new service.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux, cff] Add callbacks for inter-module calls.
-
-	NOTE: Does not compile!
-
-	* include/freetype/internal/psaux.h: Add function pointer
-	declarations.
-
-	* src/psaux/cffdecode.c (cff_decoder_init): Update to take in
-	callbacks.
-	* src/psaux/cffdecode.h: Ditto.
-
-	* src/cff/cffgload.c (cff_compute_max_advance, cff_slot_load):
-	Update calls to pass in callbacks.
-	* src/psaux/cf2ft.c, src/psaux/cffdecode.c: Use them.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux, cff] Create new `PSAux' service interface entries.
-
-	NOTE: Does not compile!
-
-	* include/freetype/internal/psaux.h: Include
-	FT_INTERNAL_TRUETYPE_TYPES_H.
-	(CFF_Builder_FuncsRec, CFF_Decocer_FuncsRec): New function tables.
-	(CFF_Builder): Updated.
-	Fix for forward declaration.
-	(PSAux_ServiceRec): New field `cff_decoder_funcs'.
-
-	* src/psaux/psauxmod.c (cff_builder_funcs, cff_decoder_funcs): New
-	function tables.
-	(PSAux_Interface): Updated.
-
-	* include/freetype/internal/tttypes.h (TT_FaceRec): Add `psaux'
-	service interface.
-
-	* src/cff/cffgload.c, src/cff/cffobjs.c, src/cff/cffparse.c: Update
-	function calls to use psaux service.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux, cff] Move CFF builder components into `psaux' module.
-
-	NOTE: Does not compile!
-
-	* src/cff/cffgload.c
-	(cff_builder_{init,done,add_point,add_point1,add_contour,start_point,close_contour},
-	cff_check_points): Move to...
-	* src/psaux/psobjs.c: Here.
-
-	* src/cff/cffgload.h: Move corresponding declarations to
-	`src/psaux/psobjs.h'.
-
-	* src/cff/cffgload.h (CFF_Builder): Move struct declaration to...
-	* include/freetype/internal/psaux.h: Here.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux, cff] Move CFF decoder components into `psaux' module.
-
-	NOTE: Does not compile!
-
-	* src/cff/cffgload.c (CFF_Operator,
-	CFF_COUNT_{CHECK_WIDTH,EXACT,CLEAR_STACK}, cff_argument_counts,
-	cff_operator_seac, cff_compute_bias,
-	cff_lookup_glyph_by_stdcharcode,
-	cff_decoder_{parse_charstrings,init,prepare}): Move to...
-	* src/psaux/cffdecode.c: This new file.
-
-	* src/cff/cffgload.h: Move corresponding declarations to...
-	* src/psaux/cffdecode.h: This new file.
-
-	* src/cff/cffgload.h (CFF_MAX_{OPERANDS,SUBRS_CALLS,TRANS_ELEMENTS},
-	CFF_Decoder_Zone, CFF_Decoder): Move declarations to...
-	* include/freetype/internal/psaux.h: Here.
-
-	* src/psaux/cf2ft.h: Update include.
-
-	* src/psaux/psaux.c, src/psaux/rules.mk (PSAUX_DRV_SRC): Update with
-	the new file.
-
-2017-09-24  Ewald Hew  <ewaldhew@gmail.com>
-
-	[psaux, cff] Move Adobe's engine components into `psaux' module.
-
-	This is the first patch of a sequence to move the Type 2 charstring
-	processing capability from the `cff' module to the `psaux' module.
-
-	NOTE: Does not compile!
-
-	* src/cff/cf2*: Move these files to...
-	* src/psaux/cf2*: Here.
-
-	* src/cff/Jamfile (_sources), src/cff/rules.mk (CFF_DRV_SRC,
-	CFF_DRV_H), src/cff/cff.c, src/cff/cffgload.c: Remove file
-	references.
-
-	* src/psaux/Jamfile (_sources), src/psaux/rules.mk, src/psaux/psaux.c
-	(PSAUX_DRV_SRC, PSAUX_DRV_H): Add file references.
-
-2017-09-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
-
-	Tweak per-face LCD filtering controls.
-
-	Thing are simpler with a NULL-function pointer.
-
-	* include/freetype/internal/ftobjs.h (FT_Face_InternalRec): New
-	pointer to the filter function.
-	(FT_LibraryRec): Remove unused `lcd_filter'.
-	(FT_Bitmap_LcdFilterFunc, ft_lcd_filter_fir):  Move from here...
-	* include/freetype/ftlcdfil.h (FT_Bitmap_LcdFilterFunc,
-	ft_lcd_filter_fir): ... to here.
-
-	* src/base/ftobjs.c (ft_open_face_internal): NULL-initialize the
-	per-face filter.
-	(FT_Face_Properties): Set it.
-	* src/smooth/ftsmooth.c (ft_smooth_render_generic): Simplify.
-
-	* src/base/ftlcdfil.c (ft_lcd_filter_fir, FT_Libary_SetLcdFilter):
 	Minor.
 
-2017-09-24  Jonathan Kew  <jfkthame@gmail.com>
+2021-09-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[sfnt] Fix `premultiply_data' (#52092).
+	* src/cff/cffdrivr.c (cff_ps_get_font_{info,extra}): Use FT_QNEW.
 
-	* src/sfnt/pngshim.c (premultiply_data): Don't use vector extension
-	if we have less than 16 bytes of data.
+2021-09-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2017-09-24  Werner Lemberg  <wl@gnu.org>
+	[cache] Minor clean-ups.
 
-	[otvalid] Fix handling of ValueRecords.
+	* src/cache/ftccache.h (FTC_CACHE_LOOKUP_CMP): Remove parantheses.
+	* src/cache/ftccache.c (FTC_Cache_Lookup): Ditto.
+	(FTC_Cache_RemoveFaceID): Remove unnecessary variable.
 
-	For GPOS pair positioning format 1 the description of ValueRecords
-	in the OpenType specification (1.8.2, from today) is wrong – the
-	offset has to be taken from the parent structure; in this case the
-	`PairSet' table.
+2021-09-17  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/otvalid/otvgpos.c (otv_PairSet_validate): Set `extra3'.
-	(otv_PairPos_validate): Adjust.
+	[builds/windows] Try both wide and narrow `CreateFile`
 
-2017-09-23  Werner Lemberg  <wl@gnu.org>
+	Windows handles wchar_t* UTF-16 and char* ANSI (presently UTF-8)
+	filenames using alternative -A and -W API. We'll try them both
+	when opening a file. This means that you should not worry about
+	about conversions.
 
-	[otvalid] Handle `GSUB' and `GPOS' v1.1 tables.
+	Fixes #1098 and !76.
 
-	* src/otvalid/otvgsub.c (otv_GSUB_validate), src/otvalid/otvgpos.c
-	(otv_GPOS_validate): Implement it.
+	* builds/windows/ftsystem.c (FT_Stream_Open): Call alternative
+	`CreateFile` in the case of failure.
 
-2017-09-23  Werner Lemberg  <wl@gnu.org>
+2021-09-17  Edwin Steiner  <edwin.steiner@gmail.com>
 
-	[otvalid] Update common table handling to OpenType 1.8.2.
+	[cff] Explicitly set StandardEncoding or ExpertEncoding offsets.
 
-	* src/otvalid/otvcommn.c (otv_Device_validate): Handle
-	VariationIndex subtable.
-	(otv_Lookup_validate): Handle MarkFilteringSet.
+	Fixes #1097.
 
-2017-09-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
+	* src/cff/cffload.c (cff_encoding_load): Set special offset values.
 
-	[build] Windows-style DLL versioning.
+2021-09-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* build/windows/ftver.rc: New VERSIONINFO resource.
-	* build/windows/vc2010/freetype.vcxproj: Further improvements.
+	[cache] Miscellaneous clean-ups.
 
-2017-09-23  Ben Wagner  <bungeman@google.com>
+	* src/cache/ftccache.c (ftc_get_top_node_for_hash, FTC_Cache_Clear):
+	Remove barely used variables.
+	(ftc_cache_add): Adjust casting.
+	* src/cache/ftccmap.c (FTC_CMapCache_Lookup): Remove casting.
+	* src/cache/ftcsbits.c (ftc_snode_load): Remove casting.
 
-	[truetype] Really fix #52082.
+2021-09-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/truetype/ttinterp.c (Ins_MDRP): Correct conditional.
+	* src/cff/cffload.c (cff_fd_select_get): Remove casting.
 
-2017-09-23  Werner Lemberg  <wl@gnu.org>
+2021-09-16  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[otvalid] Handle `GDEF' v1.2 and v1.3 tables.
+	* src/pcf/pcfread.c (pcf_read_TOC): Remove casting.
 
-	No validation of variation stuff yet.
+2021-09-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/otvalid/otvgdef.c (otv_MarkGlyphSets_validate): New function.
-	(otv_GDEF_validate): Implement it.
+	Minor type adjustments.
 
-2017-09-22  Werner Lemberg  <wl@gnu.org>
+	* src/cff/cffobjs.c (cff_face_init): Reduce casting.
+	* src/truetype/ttobjs.c (tt_size_ready_bytecode): Ditto.
+	* src/type1/t1load.c (T1_Set_MM_Design): Ditto.
 
-	[otvalid] Handle `BASE' v1.1 table.
+2021-09-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	No validation of variation stuff yet.
+	Replace boolean allocation macros with MEM ones.
 
-	* src/otvalid/otvbase.c (otv_BASE_validate): Implement it.
+	* src/base/ftbitmap.c (FT_Bitmap_Copy): Use MEM-macro.
+	* src/base/ftobjs.c (ft_glyphslot_alloc_bitmap): Ditto.
+	* src/bzip2/ftbzip2.c (ft_bzip2_alloc): Ditto.
+	* src/cache/ftccache.c (ftc_cache_init): Ditto
+	* src/gzip/ftgzip.c (ft_gzip_alloc): Ditto.
+	* src/psnames/psmodule.c (ps_unicodes_init): Ditto.
+	* src/sfnt/sfobjs.c (sfnt_load_face): Ditto.
+	* src/sfnt/ttload.c (tt_face_load_name): Ditto.
 
-2017-09-22  Werner Lemberg  <wl@gnu.org>
+2021-09-15  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[otvalid] Macros for 32bit offset support.
+	[cache] Revert to some zeroing.
 
-	* src/otvalid/otvcommn.h (OTV_OPTIONAL_TABLE32,
-	OTV_OPTIONAL_OFFSET32, OTV_SIZE_CHECK32): New macros.
+	* src/cache/ftccache.c (ftc_cache_init, ftc_cache_resize): Zero
+	`buckets` again to fix some crashes.
 
-2017-09-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+2021-09-14  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[build] Simplify Visual C++ 2010 project.
+	* src/pshinter/pshrec.c (ps_mask_table_merge_all): Tweak loops.
 
-	* build/windows/vc2010/freetype.vcxproj: Remove fake singlethreaded
-	configurations and tweak.
+	Fixes fallout from 731d0b685685 reported as
 
-2017-09-21  Werner Lemberg  <wl@gnu.org>
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=38685
 
-	[truetype] Integer overflow (#52082).
+2021-09-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/truetype/ttinterp.c (Ins_MDRP): Avoid FT_ABS.
+	[cff, pshinter] Clean up unsigned counters.
 
-2017-09-21  Werner Lemberg  <wl@gnu.org>
+	Loops with unsigned decrement can be reliably stopped when the counter
+	wraps around after reaching zero.
 
-	[sfnt] Fix postscript name for default instance of variation fonts.
+	* src/cff/cffload.c (cff_charset_compute_cids): Use unsigned counter.
+	* src/pshinter/pshalgo.c (psh_hint_table_activate_mask): Ditto.
+	* src/pshinter/pshrec.c (ps_mask_table_merge): Ditto.
 
-	Problem reported by Behdad.
+2021-09-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/sfnt/sfdriver.c (sfnt_get_ps_name): Test
-	`is_default_instance'.
+	[bdf, psnames, sfnt] Avoid some memory zeroing.
 
-2017-09-21  Werner Lemberg  <wl@gnu.org>
+	* src/bdf/bdfdrivr.c (BDF_Face_Init): Use Q-macro.
+	* src/sfnt/sfobjs.c (sfnt_load_face): Ditto.
+	* src/psnames/psmodule.c (src/psnames/psmodule.c): Remove zero.
 
-	[truetype] Fix `mmvar' array pointers, part 2.
+2021-09-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	The previous commit was incomplete.
+	* src/base/ftobjs.c (FT_CMap_New): Revert to zeroing.
 
-	* src/truetype/ttgxvar.c: Properly initialize sub-array offsets for
-	`master' also.
+	Fixes fallout from c1fa7aa2bc96, reported as
 
-2017-09-21  Werner Lemberg  <wl@gnu.org>
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=38641
 
-	[truetype] Fix `mmvar' array pointers.
+2021-09-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	Without this change, clang's AddressSanitizer reports many runtime
-	errors due to misaligned addresses.
+	[truetype] Clean up `exec` initialization.
 
-	* src/truetype/ttgxvar.c (TT_Get_MM_Var): Use multiples of pointer
-	size for sub-array offsets into `mmvar'.
+	* src/truetype/ttinterp.c (Init_Context): Absorbed into...
+	(TT_New_Context): ... this function.
 
-2017-09-20  Werner Lemberg  <wl@gnu.org>
+2021-09-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	[truetype] Integer overflows.
+	[truetype] Avoid some memory zeroing.
 
-	Changes triggered by
+	* src/truetype/ttgload.c (load_truetype_glyph): Use Q-macro.
+	* src/truetype/ttinterp.c (Update_Max): Ditto.
+	* src/truetype/ttpload.c (src/truetype/ttpload.c): Ditto.
 
-	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=3429
+2021-09-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* src/truetype/ttinterp.c (Ins_SHPIX, Ins_DELTAP): Use NEG_LONG.
-	(Ins_MIAP): Use SUB_LONG.
+	[base] Avoid some memory zeroing.
 
-2017-09-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+	* src/base/ftobjs.c (FT_New_Size, FT_CMap_New, FT_CMap_Done,
+	ft_open_face_internal, ft_open_face_internal): Use Q-macros.
 
-	[build] Fix DLL builds in Visual C++ project.
+2021-09-13  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	* build/windows/vc2010/freetype.vcxproj: Use DynamicLibrary in Debug
-	and Release configurations.
-	* include/freetype/config/ftconfig.h (FT_EXPORT, FT_EXPORT_DEF)
-	[_DLL]: Use Visual C++ extensions.
+	[cache, psaux] Remove zeros.
 
-2017-09-19  John Tytgat  <John.Tytgat@esko.com>
+	* src/cache/ftcmru.c (FTC_MruList_New): Remove initialization.
+	* src/psaux/psstack.c (cf2_stack_init): Ditto.
 
-	[cff] Fix family name logic of pure CFF fontdata (#52056).
+2021-09-12  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-	1. If `FamilyName' is present in the CFF font, use this for
-	   FT_Face's `family_name'.
-	2. Otherwise, use the face name and chop off any subset prefix.
-	3. If at this point FT_Face's `family_name' is set, use this
-	   together with the full name to determine the style.
-	4. Otherwise, use `CIDFontName' as FT_Face's `family_name'.
-	5. If we don't have a valid style, use "Regular".
+	[cache] Avoid some memory zeroing.
 
-	Previously, FT_Face's `family_name' entry for pure CFF fontdata
-	nearly always was the fontname itself, instead of the `FamilyName'
-	entry in the CFF font (assuming there is one).
+	* src/cache/ftcmru.c (FTC_MruList_New): Use Q-macro.
+	* src/cache/ftcmanag.c (FTC_Manager_RegisterCache): Ditto.
+	* src/cache/ftccache.c (ftc_cache_init, ftc_cache_resize): Ditto.
 
-	* src/cff/cffobjs.c (cff_face_init) [pure_cff]: Implement it.
+2021-09-11  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
-2017-09-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+	* src/cache/ftcmanag.c (FTC_Manager_New): Add missing zero.
 
-	[build] Declutter Visual C++ 2010-2017 project.
+	Fixes fall out from a7b199d081e7.
 
-	* build/windows/vc2010/freetype.vcxproj: Use MaxSpeed (/02)
-	optimization for Release configuration throughout the project.
+2021-09-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[truetype] Tweak `hdmx` checking.
 
-----------------------------------------------------------------------------
+	Fixes #1096.
 
-Copyright 2017-2018 by
-David Turner, Robert Wilhelm, and Werner Lemberg.
+	* src/truetype/ttpload.c (tt_face_load_hdmx): Account for padding.
 
-This file is part of the FreeType project, and may only be used, modified,
-and distributed under the terms of the FreeType project license,
-LICENSE.TXT.  By continuing to use, modify, or distribute this file you
-indicate that you have read the license and understand and accept it
-fully.
+2021-09-10  Alexei Podtelezhnikov  <apodtele@gmail.com>
 
+	[truetype] Tweak `loca` clamping.
 
-Local Variables:
-version-control: never
-coding: utf-8
-End:
+	Fixes #1095.
+
+	* src/truetype/ttpload.c (tt_face_load_loca): Fix up clamping.
+	* include/freetype/internal/tttypes.h (TT_Face): Correct docs.
+
+2021-09-08  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Fortify memory debugging (cont'd).
+
+	* src/base/ftdbgmem.c (FT_DumpMemory): Check for active debugger.
+	(ft_mem_table_destroy): Move `FT_DumpMemory` call from here...
+	(ft_mem_debug_done): ... to here.
+
+2021-09-08  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Fortify memory debugging.
+
+	These changes are neccessary to properly recover `memory->user` that
+	holds the Windows heap handle now.
+
+	* src/base/ftdbgmem.c (ft_mem_debug_init): Handle all table allocations,
+	initializations, and sizing instead of...
+	(ft_mem_table_new): ... this function removed.
+	(ft_mem_debug_done): Better check for the active debugger and free the
+	debugger table here instead of...
+	(ft_mem_table_destroy): ... here.
+
+2021-09-08  Werner Lemberg  <wl@gnu.org>
+
+	src/tools/ftrandom/ftrandom.c (_XOPEN_SOURCE): Set to 600.
+
+	This allows C99 compilation on Solaris.
+
+	Problem reported by Mojca Miklavec.
+
+2021-09-07  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[builds/windows] Use native memory allocation API.
+
+	* builds/windows/ftsystem.c (ft_alloc, ft_realloc, ft_free):
+	Wrap HeapAlloc, HeapReAlloc, and HeapFree.
+	(FT_New_Memory): Set the heap handle.
+
+2021-09-07  Werner Lemberg  <wl@gnu.org>
+
+	[dlg] Synchronize with upstream.
+
+	* src/dlg/dlgwrap.c (_XOPEN_SOURCE): Set to 600.
+
+	Fixes #1093.
+
+2021-09-04  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Cosmetic zeros.
+
+2021-09-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/bdf/bdflib.c (_bdf_parse_start): Keep parser memory.
+
+2021-09-03  Werner Lemberg  <wl@gnu.org>
+
+	autogen.sh: Make it work with old Solaris 10 shell.
+
+2021-09-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[smooth, raster, sdf] Clean up initialization calls.
+
+	* src/raster/ftraster.c (ft_black_init): Removed.
+	(ft_black_new): Clean up.
+	* src/sdf/ftbsdf.c (bsdf_raster_new): Ditto.
+	* src/sdf/ftsdf.c (sdf_raster_new): Ditto.
+	* src/smooth/ftgrays.c (gray_raster_new): Ditto.
+
+2021-09-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/cache/ftcmanag.c (FTC_Manager_New): Avoid some zeroing.
+
+2021-09-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/bdf/bdflib.c (bdf_load_font): Remove memory shuffling.
+
+2021-09-03  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Cosmetic zeros.
+
+2021-09-02  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[base] Clean up stream reading.
+
+	* src/base/ftstream.c (FT_Stream_ReadUShort, FT_Stream_ReadUOffset,
+	FT_Stream_ReadULong and their LE variants): Remove unnecessary
+	initialization and slightly refactor.
+	(FT_Stream_GetByte, FT_Stream_ReadByte): Rename to return unsigned
+	value and align with sister functions.
+
+	* include/freetype/internal/ftstream.h (FT_Stream_GetByte,
+	FT_Stream_ReadByte): Update prototypes and caller macros.
+
+2021-09-02  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	s/0/NULL/ where appropriate.
+
+2021-08-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* builds/windows/ftsystem.c (FT_Stream_Open): Fix double-close.
+
+2021-08-30  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[smooth] Reduce shift in multiply-shift optimization.
+
+	* src/smooth/ftgrays.c (FT_UDIVPREP, FT_UDIV): Reduce shift.
+
+	Smaller shifts that keep the division operands of FT_UDIVPREP within
+	32 bits result in slightly faster divisions, which is noticeable in
+	the overall performance.  The loss of precision is tolerable until the
+	divisors (the components dx and dy) approach 32 - PIXEL_BITS. With
+	PIXEL_BITS = 8, this corresponds to 65,000 pixels or the bitmap size
+	that we refuse to render anyway.
+
+	Using `ftbench -p -s60 -t5 -bc timesi.ttf`,
+
+	Before: 8.52 us/op
+	After:  8.32 us/op
+
+2021-08-28  Werner Lemberg  <wl@gnu.org>
+
+	[truetype] Fix compilation if !TT_CONFIG_OPTION_BYTECODE_INTERPRETER.
+
+	* src/truetype/ttgxvar.c (tt_cvt_ready_iterator): Compile function
+	conditionally.
+	(tt_face_vary_cvt) [!TT_CONFIG_OPTION_BYTECODE_INTERPRETER]: Add code.
+
+	Fixes #1091.
+
+2021-08-27  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[builds/windows] Revise SSE2 settings.
+
+	* builds/windows/vc2010/freetype.vcxproj [x64]: Remove explicit SSE2.
+	* builds/windows/visualc/freetype.vcproj [Win32]: Add explicit SSE2.
+
+2021-08-27  Ben Wagner  <bungeman@chromium.org>
+
+	[smooth] Detect SSE2 with MSVC for x86
+
+	MSVC does not set `__SSE2__`. Instead one must check whether `_M_IX86_FP` is
+	defined and greater than or equal to 2.
+
+	* src/smooth/ftgrays.c (FT_SSE2): New macro.
+	Use it where appropriate.
+
+2021-08-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Expand comment (cont'd).
+
+2021-08-26  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Expand comment.
+
+2021-08-24  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* src/smooth/ftgrays.c (gray_render_conic): Refactor redundancy.
+
+2021-08-24  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	[truetype] Fix for the family name shorter than 8 characters.
+
+	* src/truetype/ttobjs.c (tt_skip_pdffont_random_tag):
+	If the family name to be checked is shorter than 8 characters,
+	do not check its syntax.
+
+2021-08-24  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	[truetype] Simplify `trick_names'.
+
+	* src/truetype/ttobjs.c (tt_check_trickyness_family): For the case
+	that the beginning part of a long tricky family name is already
+	registered as another tricky family name, no need to double-check
+	the longer one.  Such long tricky family names are removed from
+	the `trick_names'.
+
+2021-08-24  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	[truetype] Add 2 tricky font names.
+
+	Additional fix for the issue #1087.
+
+	* src/truetype/ttobjs.c (tt_check_trickyness_family): Add 2 tricky
+	font names reported in #1087.
+
+2021-08-24  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	[truetype] New function to skip the randomization tag.
+
+	* src/truetype/ttobjs.c (tt_skip_pdffont_random_tag):
+	New function to skip the randomization tag in the names of the
+	fonts embedded in a PDF.  It is used by tt_check_trickyness_family(),
+	to keep from mistaking "DLC" in the randomization tag as a
+	tricky font name. See discussion in:
+
+	https://lists.nongnu.org/archive/html/freetype-devel/2021-02/msg00002.html
+
+	For technical detail about the randomization tag, please find
+	PDF Reference 5.5.3 "Font Subsets".  Thanks to Justyna Wawrzynska
+	for pointing out the issue caused by the randomization tag.
+
+2021-08-24  suzuki toshiya  <mpsuzuki@hiroshima-u.ac.jp>
+
+	[truetype] Add checksums for 2 tricky fonts.
+
+	Thanks to Ting717 for providing sample PDF. Fixes #1087.
+
+	* src/truetype/ttobjs.c (tt_check_trickyness_sfnt_ids): Add
+	checksums for 2 tricky fonts `DFHei-Bd-WIN-HK-BF' and
+	`DFMing-Md-WIN-HK-BF'.
+
+2021-08-23  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Whitespace formatting.
+
+2021-08-22  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Decorate const arguments.
+
+	* src/base/ftglyph.c (FT_Glyph_Transform, FT_Glyph_To_Bitmap): Do it.
+	* include/freetype/ftglyph.h (FT_Glyph_Transform, FT_Glyph_To_Bitmap):
+	Do it.
+
+2021-08-21  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[smooth] Clean up the null cell usage.
+
+	Put the null cell at the end of the pool and store it explicitly so that
+	we can use it as both the limit and the dumpster.
+
+	* src/smooth/ftgrays.c (gray_TWorker): Store the last `cell_null` and
+	remove unnecesary fields.
+	(NULL_CELL_PTR, CELL_IS_NULL): Remove in favor of explicit `cell_null`.
+	(gray_dump_cells, gray_set_cell, gray_sweep{,_direct}): Update callers.
+	(gray_convert_glyph_inner): Trace remaining cells (oh well).
+	(gray_convert_glyph): Set up `cell_null` and slightly improve the pool
+	management.
+
+2021-08-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[base] Restore quiet no-op rendering of bitmap glyphs.
+
+	Fixes #1076.
+
+	* src/base/ftobjs.c (FT_Render_Glyph_Internal): Discard an error when
+	rendering a bitmap glyph.
+
+2021-08-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[smooth] Fortify 64-bit algorithm.
+
+	* src/smooth/ftgrays.c (FT_UDIVPREP, FT_UDIV): s/long/FT_Int64/ and
+	s/unsigned long/FT_UInt64/.
+	(gray_render_line): Adjust a critical variable type.
+
+2021-08-20  Carlo Bramini  <carlo.bramix@libero.it>
+
+	* builds/windows/ftsystem.c (FT_Stream_Open): Support legacy Windows.
+
+2021-08-20  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Determine `long long` availability based on its size.
+
+	MSVC, for example, used `long long` even without full C99 support.
+
+	* include/freetype/config/ftstdlib.h: Check if `long long` limits are
+	defined in <limits.h>.
+	* include/freetype/config/integer-types.h: Check `long long` size and
+	use it to typedef FT_Int64.
+
+2021-08-19  Dominik Röttsches  <drott@chromium.org>
+
+	[sfnt] Fix format expectation for `COLR` v1 ClipList
+
+	* src/sfnt/ttcolr.c (tt_face_get_color_glyph_clipbox): Change ClipList
+	format expectation to 1 instead of 0 to make it compliant with the
+	latest spec.
+
+2021-08-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Readily use `long long` as a 64-bit type in C99 mode.
+
+	* include/freetype/config/integer-types.h (FT_INT64):
+	FT_CONFIG_OPTION_FORCE_INT64 is no longer required to use `long long`.
+
+2021-08-19  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	Use FT_INT64 instead of FT_LONG64.
+
+	* include/freetype/config/integer-types.h: Remove synonymous FT_LONG64.
+	* include/freetype/internal/ftcalc.h: s/FT_LONG64/FT_INT64/.
+	* src/base/ftcalc.c: Ditto.
+	* src/base/fttrigon.c: Ditto.
+	* src/smooth/ftgrays.c: Ditto.
+
+2021-08-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	[builds/windows] Do not set CharacterSet for VC++.
+
+	* builds/windows/vc2010/freetype.vcxproj: s/Unicode/NotSet/.
+	* builds/windows/visualc/freetype.vcproj: s/"1"/"0"/.
+
+2021-08-18  Werner Lemberg  <wl@gnu.org>
+
+	* src/sdf/ftsdf.c (get_control_box): Fix compiler warning.
+
+2021-08-18  Werner Lemberg  <wl@gnu.org>
+
+	[base] Fix ppem size overflow.
+
+	Fixes #1086.
+
+	* src/base/ftobjs.c (FT_Request_Metrics): Add return value.
+	Check whether ppem values fit into unsigned short values.
+	(FT_Request_Size): Updated.
+
+	* include/freetype/internal/ftobjs.h: Updated.
+
+	* src/cff/cffobjs.c (cff_size_request), src/cid/cidobjs.c
+	(cid_size_request), src/truetype/ttdriver.c (tt_size_request),
+	src/type1/t1objs.c (T1_Size_Request): Updated.
+
+2021-08-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* builds/windows/ftsystem.c (FT_Stream_Open): Cast to remove warning.
+
+2021-08-18  Alexei Podtelezhnikov  <apodtele@gmail.com>
+
+	* builds/windows/ftsystem.c (FT_Stream_Open): Support UNICODE compilation.
+
+2021-08-09  Werner Lemberg  <wl@gnu.org>
+
+	* src/sfnt/ttcolr.c (tt_face_get_color_glyph_clipbox): Minor fix.
+
+2021-08-09  Dominik Röttsches  <drott@chromium.org>
+
+	[sfnt] Add missing blend mode 'plus' to 'COLR' v1.
+
+	* include/freetype/ftcolor.h (FT_Composite_Mode): Add missing blend mode
+	'plus' after it was added to the spec.
+
+2021-08-08  Werner Lemberg  <wl@gnu.org>
+
+	include/freetype/freetype.h (FT_Encoding): Improve documentation.
+
+	Based on a suggestion by Antony Lee <anntzer.lee@gmail.com>.
+
+2021-08-07  Werner Lemberg  <wl@gnu.org>
+
+	[smooth] Avoid integer overflow.
+
+	Reported as
+
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=36243
+
+	* src/smooth/ftgrays.c(ADD_LONG, SUB_LONG, MUL_LONG, NEG_LONG)
+	[STANDALONE_]: Removed, unused.
+	(ADD_INT) [STANDALONE_]: New macro.
+	(FT_INTEGRATE): Use ADD_INT.
+
+2021-08-07  Dominik Röttsches  <drott@chromium.org>
+
+	[sfnt] Add API for retrieving a 'COLR' v1 'ClipBox' table.
+
+	The optional 'COLR' v1 glyph-specific clip box helps upstream graphics
+	libraries allocate a sufficiently large bitmap for a glyph without having to
+	traverse the glyph graph for that.  See
+
+	  https://github.com/googlefonts/colr-gradients-spec/issues/251
+
+	for background on the introduction of this specification change.
+
+	* include/freetype/ftcolor.h (FT_ClipBox): New structure.
+	(FT_Get_Color_Glyph_ClipBox): New function declaration.
+
+	* include/freetype/internal/sfnt.h (TT_Get_Color_Glyph_ClipBox_Func):
+	New function type.
+	(SFNT_Interface, FT_DEFINE_SFNT_INTERFACE): Use it.
+
+	* src/base/ftobjs.c (FT_Get_Color_Glyph_ClipBox): New function to link API
+	with SFNT implementation.
+
+	* src/sfnt/sfdriver.c (sfnt_interface): Updated.
+	* src/sfnt/ttcolr.c (Colr): New field `clip_list`.
+	(tt_face_load_colr): Parse global clip list offset.
+	(tt_face_get_color_glyph_clipbox): New function to find the clip box for a
+	glyph id from the clip list array.
+	* src/sfnt/ttcolr.h: Updated.
+
+2021-08-06  Werner Lemberg  <wl@gnu.org>
+
+	[smooth] Fix left shifts of negative numbers.
+
+	Reported as
+
+	  https://bugs.chromium.org/p/oss-fuzz/issues/detail?id=36241
+
+	* src/smooth/ftgrays.c (LEFT_SHIFT): New macro.
+	(gray_render_conic) [BEZIER_USE_DDA]: Use it.
+
+2021-08-02  Werner Lemberg  <wl@gnu.org>
+
+	* meson.build: Fix zlib support.
+
+	This commit synchronizes zlib support with both autotools and cmake: If no
+	external zlib is found (or intentionally disabled on the command line), use
+	the internal zlib by undefining `FT_CONFIG_OPTION_SYSTEM_ZLIB` without
+	modifying `FT_CONFIG_OPTION_USE_ZLIB`.
+
+	Also improve summary output.
+
+	Problem reported by Moazin.
+
+2021-08-02  Anuj Verma  <anujv@iitbhilai.ac.in>
+
+	[sdf] Fix out-of-range-access.
+
+	* src/sdf/ftbsdf.c (first_pass, second_pass): Fix range during forward pass.
+	Otherwise the index goes out of range for the last column.
+
+	Fixes issue #1077.
+
+2021-08-02  Anuj Verma  <anujv@iitbhilai.ac.in>
+
+	Fix invalid memory access in `bsdf` rasterizer.
+
+	Do not generate SDF from bitmap if the `FT_GLYPH_OWN_BITMAP` flag is not
+	set.  In some cases the bitmap buffer is freed but still points to a valid
+	address; to handle those cases check the flag before accessing the memory.
+
+	* src/sdf/ftsdfrend.c (ft_bsdf_render): Handle the above case.
+	Also, return an error message if the bitmap's rows/pitch is invalid,
+	otherwise `slot->buffer` might be assigned to some invalid memory location.
+	(ft_sdf_render): Same as above.
+	Plus, move the outline back to original state after rasterization and not if
+	any error occurs.
+
+2021-07-29  Heiko Becker  <heirecka@exherbo.org>
+
+	* meson.build: Honor `--includedir` instead of hard-coding 'include'.
+
+2021-07-29  Werner Lemberg  <wl@gnu.org>
+
+	src/sfnt/ttcolr.c: Minor formatting.
+
+2021-07-29  Dominik Röttsches  <drott@chromium.org>
+
+	[sfnt] 'COLR' v1 PaintSweepGradient spec update
+
+	* src/sfnt/ttcolr.c (read_paint): PaintSweepGradient follows other
+	spec changes and now has the angles specified as F2DOT14, reflect
+	that in the implementation.
+	* include/freetype/ftcolor.h (FT_PaintSweepGradient): Update
+	documentation.
+
+2021-07-29  Dominik Röttsches  <drott@chromium.org>
+
+	[sfnt] Retrieve affine matrix from offset in 'COLR' v1 parsing.
+
+	* src/sfnt/ttcolr.c (read_paint): Implement spec change where
+	affine transform matrix is now referenced by offset instead of
+	being placed inline in the PaintTransform table.
+
+2021-07-29  Dominik Röttsches  <drott@chromium.org>
+
+	[sfnt] 'COLR' v1 PaintSkew related spec updates
+
+	* src/sfnt/ttcolr.c (read_paint): Implement spec changes around
+	PaintSkew, PaintSkewAroundCenter.  Update parsing to read shorter
+	values as changed in the spec.
+	* include/freetype/ftcolor.h (FT_PaintSkew): Update documentation.
+
+2021-07-29  Dominik Röttsches  <drott@chromium.org>
+
+	[sfnt] PaintRotate/PaintRotateAroundCenter spec updates
+
+	* src/sfnt/ttcolr.c (read_paint): Implement spec change where
+	PaintRotate and PaintRotateAroundCenter were split for a more
+	compact format definition.  Update parsing to read shorter values
+	as changed in the spec.
+	* include/freetype/ftcolor.h (FT_PaintRotate): Update documentation.
+
+2021-07-29  Dominik Röttsches  <drott@chromium.org>
+
+	[sfnt] 'COLR' v1 PaintTranslate and PaintScale precision
+
+	* src/sfnt/ttcolr.c (read_paint): Implement spec changes in
+	PaintTranslate and PaintScale and friends.  Update parsing to read
+	new shorter values.
+
+2021-07-29  AnuthaDev  <anuthadev@gmail.com>
+
+	README.git: Add Code of Conduct.
+
+2021-07-25  Werner Lemberg  <wl@gnu.org>
+
+	ChangeLog housekeeping.
+
+	Archive old `ChangeLog` file.
+
+	We no longer write ChangeLog entries manually; instead, the file will be
+	created from commit messages (which should be formatted in GNU's ChangeLog
+	style) by a call to
+
+	  gitlog-to-changelog --format='%B%n'
+
+	or something similar (this script is part of the 'gnulib' repository).
+
+2021-07-24  Werner Lemberg  <wl@gnu.org>
+
+	Fix some `cppcheck` warnings.
+
+	* src/bzip2/ftbzip2.c (ft_bzip2_file_skip_output), src/gzip/ftgzip.c
+	(ft_gzip_file_skip_output): Reduce scope of `delta`.
+
+	* src/psaux/psintrp.c, src/psaux/psintrp.h (cf2_interpT2CharString): Add
+	`const` to `buf` parameter.
+
+	* src/raster/ftraster.c (DelOld): Add `const` to `profile` parameter.
+	(Vertical_Sweep_Span): Reduce scope of `target`.
+	(FT_Outline_Get_CBox): Reduce scope of `xMin`, `xMax`, `yMin`, `yMax`.
+
+	* src/smooth/ftgrays.c (gray_render_conic): Reduce scope of `split`.
+	(gray_sweep, gray_sweep_direct): Reduce scope of `area`.
+
+	* src/tools/apinames.c (names_dump) <OUTPUT_WATCOM_LBC>: Reduce scope of
+	`temp`.
+
+2021-07-24  AnuthaDev  <anuthadev@gmail.com>
+
+	* .gitlab-ci.yml: Fixed cmake build, using correct options.
+
+2021-07-24  AnuthaDev  <anuthadev@gmail.com>
+
+	* CMakeLists.txt: Make `cmake` handle disabled dependencies correctly.
+
+	Include 'CMakeDependentOption'.
+
+	Replace `FT_WITH_XXX` options with `FT_DISABLE_XXX` and `FT_REQUIRE_XXX`
+	pairs.  Update option logic accordingly.
+
+	Fixes #1066.
+
+2021-07-24  Ben Wagner  <bungeman@chromium.org>
+
+	[autofit] Split `afwrtsys.h`.
+
+	The header file `afwrtsys.h` has two distinct functions: to include the
+	required writing system headers and also to generate code for each writing
+	system.  At each current use site only one or the other is used, with
+	various macro trickery selecting one or the other.  Split this header into
+	`afws-decl.h` for the required writing system declarations and `afws-iter.h`
+	for iterating over the writing systems to generate code.
+
+	The motivation for this change is that the Visual C++ compiler treats the
+	standard include guard idiom like `#pragma once` 'if no non-comment code or
+	preprocessor directive comes before or after the standard form of the
+	idiom'.  It appears to check this after macro expansion, so if
+	`WRITING_SYSTEM` expands to empty the bottom of `afwrtsys.h` is empty and
+	looks like the standard include guard idiom which is treated like `#pragma
+	once`, so subsequent inclusion of `afwrtsys.h` is elided.
+
+	Fixes #1075.
+
+	* src/autofit/afglobal.c (af_writing_system_classes), src/autofit/aftypes.h
+	(AF_WritingSystem), src/autofit/rules.mk (AUTOF_DRV_H): Updated.
+
+	* src/autofit/afwrtsys.h: Split into...
+	* src/autofit/afws-decl.h, src/autofit/afws-iter.h: New files.

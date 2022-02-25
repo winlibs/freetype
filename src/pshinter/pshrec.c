@@ -1,26 +1,25 @@
-/***************************************************************************/
-/*                                                                         */
-/*  pshrec.c                                                               */
-/*                                                                         */
-/*    FreeType PostScript hints recorder (body).                           */
-/*                                                                         */
-/*  Copyright 2001-2018 by                                                 */
-/*  David Turner, Robert Wilhelm, and Werner Lemberg.                      */
-/*                                                                         */
-/*  This file is part of the FreeType project, and may only be used,       */
-/*  modified, and distributed under the terms of the FreeType project      */
-/*  license, LICENSE.TXT.  By continuing to use, modify, or distribute     */
-/*  this file you indicate that you have read the license and              */
-/*  understand and accept it fully.                                        */
-/*                                                                         */
-/***************************************************************************/
+/****************************************************************************
+ *
+ * pshrec.c
+ *
+ *   FreeType PostScript hints recorder (body).
+ *
+ * Copyright (C) 2001-2021 by
+ * David Turner, Robert Wilhelm, and Werner Lemberg.
+ *
+ * This file is part of the FreeType project, and may only be used,
+ * modified, and distributed under the terms of the FreeType project
+ * license, LICENSE.TXT.  By continuing to use, modify, or distribute
+ * this file you indicate that you have read the license and
+ * understand and accept it fully.
+ *
+ */
 
 
-#include <ft2build.h>
-#include FT_FREETYPE_H
-#include FT_INTERNAL_OBJECTS_H
-#include FT_INTERNAL_DEBUG_H
-#include FT_INTERNAL_CALC_H
+#include <freetype/freetype.h>
+#include <freetype/internal/ftobjs.h>
+#include <freetype/internal/ftdebug.h>
+#include <freetype/internal/ftcalc.h>
 
 #include "pshrec.h"
 #include "pshalgo.h"
@@ -28,7 +27,7 @@
 #include "pshnterr.h"
 
 #undef  FT_COMPONENT
-#define FT_COMPONENT  trace_pshrec
+#define FT_COMPONENT  pshrec
 
 #ifdef DEBUG_HINTER
   PS_Hints  ps_debug_hints         = NULL;
@@ -500,23 +499,18 @@
   ps_mask_table_merge_all( PS_Mask_Table  table,
                            FT_Memory      memory )
   {
-    FT_Int    index1, index2;
+    FT_UInt   index1, index2;
     FT_Error  error = FT_Err_Ok;
 
 
-    /* both loops go down to 0, thus FT_Int for index1 and index2 */
-    for ( index1 = (FT_Int)table->num_masks - 1; index1 > 0; index1-- )
+    /* the loops stop when unsigned indices wrap around after 0 */
+    for ( index1 = table->num_masks - 1; index1 < table->num_masks; index1-- )
     {
-      for ( index2 = index1 - 1; index2 >= 0; index2-- )
+      for ( index2 = index1 - 1; index2 < index1; index2-- )
       {
-        if ( ps_mask_table_test_intersect( table,
-                                           (FT_UInt)index1,
-                                           (FT_UInt)index2 ) )
+        if ( ps_mask_table_test_intersect( table, index1, index2 ) )
         {
-          error = ps_mask_table_merge( table,
-                                       (FT_UInt)index2,
-                                       (FT_UInt)index1,
-                                       memory );
+          error = ps_mask_table_merge( table, index2, index1, memory );
           if ( error )
             goto Exit;
 
@@ -666,7 +660,7 @@
       if ( len == -21 )
       {
         flags |= PS_HINT_FLAG_BOTTOM;
-        pos   += len;
+        pos    = ADD_INT( pos, len );
       }
       len = 0;
     }
@@ -875,7 +869,7 @@
       if ( error )
       {
         FT_ERROR(( "ps_hints_stem: could not add stem"
-                   " (%d,%d) to hints table\n", stems[0], stems[1] ));
+                   " (%ld,%ld) to hints table\n", stems[0], stems[1] ));
 
         hints->error = error;
         return;
@@ -1187,7 +1181,7 @@
       /* compute integer stem positions in font units */
       for ( n = 0; n < count * 2; n++ )
       {
-        y       += coords[n];
+        y        = ADD_LONG( y, coords[n] );
         stems[n] = FIXED_TO_INT( y );
       }
 
